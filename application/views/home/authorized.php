@@ -6,8 +6,8 @@
                     <select id="category" class="form-control" multiple placeholder="Select a category or enter keywords" style="width: 100%;"></select>
                 </div>
             </div>
-            <div class="col-3">
-                <div class="form-group" id="show-slider-follower">
+            <div class="col-4">
+                <div class="form-group show-slider" id="show-slider-follower">
                     <button type="button" class="btn btn-outline-success btn-block">
                         Followers
                     </button>
@@ -26,8 +26,8 @@
                 </div>
             </div>
 
-            <div class="col-3">
-                <div class="form-group" id="show-slider-engagement">
+            <div class="col-4">
+                <div class="form-group show-slider" id="show-slider-engagement">
                     <button type="button" class="btn btn-outline-success btn-block">
                         Engagement
                     </button>
@@ -45,12 +45,12 @@
                     </div>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-2">
                 <div class="form-group">
                     <select id="area" class="form-control" multiple placeholder="Area" style="width: 100%;"></select>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-2">
                 <button type="button" class="btn btn-success btn-block" id="btn-show">Show 1K Results</button>
             </div>
         </div>

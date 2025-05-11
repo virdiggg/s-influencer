@@ -8,53 +8,29 @@
                     </button>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-4">
                 <div class="form-group authorized-only show-slider-follower">
                     <button type="button" class="btn btn-outline-success btn-block">
                         Followers
                     </button>
                 </div>
-
-                <div class="dropdown-row" style="display: none;">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="p-3 bg-white rounded border shadow-sm">
-                                <div class="slider-green">
-                                    <input type="text" id="slider-follower" class="slider form-control" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <div class="col-3">
+            <div class="col-4">
                 <div class="form-group authorized-only show-slider-engagement">
                     <button type="button" class="btn btn-outline-success btn-block">
                         Engagement
                     </button>
                 </div>
-
-                <div class="dropdown-row" style="display: none;">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="p-3 bg-white rounded border shadow-sm">
-                                <div class="slider-green">
-                                    <input type="text" id="slider-engagement" class="slider form-control" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-            <div class="col-3">
+            <div class="col-2">
                 <div class="form-group authorized-only">
                     <button type="button" class="btn btn-outline-success btn-block">
                         Area
                     </button>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-2">
                 <button type="button" class="btn btn-success btn-block authorized-only" id="btn-show">Show 1K Results</button>
             </div>
         </div>
