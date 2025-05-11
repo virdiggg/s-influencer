@@ -24,7 +24,7 @@ class Migration_Seeder_influencers extends CI_Migration
      */
     public function up()
     {
-        $filePath = APPPATH . 'storage/database.xlsx';
+        $filePath = STORAGE_PATH . 'database.xlsx';
 
         $spreadsheet = IOFactory::load($filePath);
         $sheet = $spreadsheet->getActiveSheet();
@@ -63,9 +63,9 @@ class Migration_Seeder_influencers extends CI_Migration
 
             $influencers[] = [
                 'name' => $name,
-                'username' => $username,
+                'username_instagram' => $username,
                 'category_id' => $category_id,
-                'follower' => $followers,
+                'followers' => $followers,
                 'engagement_rate' => $er,
                 'area_id' => json_encode($areaParts),
                 'created_by' => 'superadmin',

@@ -40,3 +40,11 @@ $config['encrypt_method']   = 'aes-256-gcm';
  * If using_benchmark is false, the profiler will not be shown regardless if project is in production or development
 */
 $config['using_benchmark']         = false; // true or false
+
+$config['app_name']               = 'Influencer';
+
+$config['pusher_key']       = '';
+$config['pusher_secret']    = '';
+$config['pusher_app_id']    = '';
+$config['pusher_cluster']   = 'ap1';
+$config['pusher_channel']   = 'myessen';
