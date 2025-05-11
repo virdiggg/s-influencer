@@ -8,7 +8,7 @@
             </div>
             <div class="col-4">
                 <div class="form-group show-slider" id="show-slider-follower">
-                    <button type="button" class="btn btn-outline-success btn-block">
+                    <button type="button" class="btn btn-outline-success btn-block text-left">
                         Followers
                     </button>
                 </div>
@@ -28,7 +28,7 @@
 
             <div class="col-4">
                 <div class="form-group show-slider" id="show-slider-engagement">
-                    <button type="button" class="btn btn-outline-success btn-block">
+                    <button type="button" class="btn btn-outline-success btn-block text-left">
                         Engagement
                     </button>
                 </div>

@@ -3,14 +3,14 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group authorized-only">
-                    <button type="button" class="btn btn-outline-success btn-block">
+                    <button type="button" class="btn btn-outline-success btn-block text-left">
                         Select a category or enter keywords
                     </button>
                 </div>
             </div>
             <div class="col-4">
                 <div class="form-group authorized-only show-slider-follower">
-                    <button type="button" class="btn btn-outline-success btn-block">
+                    <button type="button" class="btn btn-outline-success btn-block text-left">
                         Followers
                     </button>
                 </div>
@@ -18,14 +18,14 @@
 
             <div class="col-4">
                 <div class="form-group authorized-only show-slider-engagement">
-                    <button type="button" class="btn btn-outline-success btn-block">
+                    <button type="button" class="btn btn-outline-success btn-block text-left">
                         Engagement
                     </button>
                 </div>
             </div>
             <div class="col-2">
                 <div class="form-group authorized-only">
-                    <button type="button" class="btn btn-outline-success btn-block">
+                    <button type="button" class="btn btn-outline-success btn-block text-left">
                         Area
                     </button>
                 </div>
@@ -54,6 +54,12 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" class="form-control" placeholder="Password" name="password" id="password" autocomplete="off" required />
+                </div>
+                <div class="form-group">
+                    <div class="icheck-primary mr-1">
+                        <input type="checkbox" class="view-password" id="view-password" />
+                        <label for="view-password">Lihat Password</label>
+                    </div>
                 </div>
                 <div class="text-danger" id="message"></div>
             </div>

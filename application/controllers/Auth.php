@@ -1,16 +1,8 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 Class Auth extends CI_Controller {
-    /**
-     * Page title.
-     * 
-     * @param string $title
-     */
-    private $title;
-
     public function __construct() {
         parent::__construct();
-        $this->title = 'Auth';
     }
 
     public function signIn() {
@@ -47,6 +39,7 @@ Class Auth extends CI_Controller {
 
     public function signOut() {
         $this->authenticated->signOut();
+        $this->load->helper('permission');
         return redirectBack();
     }
 }

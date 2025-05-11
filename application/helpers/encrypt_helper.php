@@ -26,9 +26,9 @@ if (!function_exists('encrypt'))
     {
         $ci =& get_instance();
 
-        $cipher = chiper();
-        $supportedCiphers = supportedCiphers();
-        $size = $supportedCiphers[strtolower($cipher)]['size'];
+        // $cipher = chiper();
+        // $supportedCiphers = supportedCiphers();
+        // $size = $supportedCiphers[strtolower($cipher)]['size'];
 
         // Key must be following the chosen chipher rules
         return $ci->config->item('secret_key') ?: $ci->config->item('encryption_key');

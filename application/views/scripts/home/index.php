@@ -147,6 +147,14 @@
             });
     }
 
+    $('.view-password').on('click', function() {
+        if ($(this).is(':checked')) {
+            $(this).closest('.modal-body').find('#password').attr('type', 'text');
+        } else {
+            $(this).closest('.modal-body').find('#password').attr('type', 'password');
+        }
+    });
+
     fetchCategories = () => {
         fetch(initURL + 'api/master/categories', {
                 method: 'GET',
@@ -165,7 +173,7 @@
                 $('#category').html(html);
                 $('#category').select2({
                     theme: 'bootstrap4',
-                    placeholder: 'Category'
+                    placeholder: 'Select a category or enter keywords'
                 });
             })
             .catch(error => {
