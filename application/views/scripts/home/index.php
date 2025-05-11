@@ -1,33 +1,10 @@
 <script type="text/javascript">
     var startCounting = document.getElementById('startCounting').value;
 
-    $('#form-auth').submit(function(e) {
-        e.preventDefault();
-
-        let btn = document.getElementById('btn-auth');
-        let message = document.getElementById('message');
-        message.innerHTML = '';
-        btn.disabled = true;
-
-        fetch(initURL + 'auth/signIn', {
-                method: 'POST',
-                body: new FormData(this)
-            })
-            .then(response => response.json())
-            .then(response => {
-                if (response.status === false) {
-                    message.innerHTML = `<label class="text-danger">${response.message}</label>`;
-                } else {
-                    window.location.reload();
-                }
-            })
-            .catch(error => {
-                // console.error('Error:', error);
-            })
-            .finally(() => {
-                btn.disabled = false;
-            });
-    });
+    const followersTop = 10000;
+    const followersBottom = 5000;
+    const engagementRateTop = 20;
+    const engagementRateBottom = 0;
 
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('loading').innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
@@ -89,19 +66,33 @@
         const id = $(this).attr('id');
         const $dropdown = $(this).siblings('.dropdown-row');
         const $slider = $dropdown.find('.slider');
+        const sliderId = $slider.attr('id');
 
         // Close others
         $('.dropdown-row').not($dropdown).slideUp(150);
 
         $dropdown.slideToggle(150, function() {
             if (!$slider.hasClass('slider-initialized')) {
-                const savedVal = sliderValues[id] || [0, 20];
+                let min = 0;
+                let max = 100;
+                let step = 1;
+                let savedVal = sliderId === 'slider-follower' ? [followersBottom, followersTop] : [engagementRateBottom, engagementRateTop];
+
+                if (sliderValues[id]) {
+                    savedVal = sliderValues[id];
+                }
+
+                if (sliderId === 'slider-follower') {
+                    min = followersBottom;
+                    max = 1000000;
+                    step = followersBottom;
+                }
 
                 $slider.slider({
                     tooltip: 'show',
-                    min: 0,
-                    max: 100,
-                    step: 1,
+                    min: min,
+                    max: max,
+                    step: step,
                     value: savedVal
                 }).addClass('slider-initialized');
 
@@ -120,6 +111,41 @@
             $('.dropdown-row:visible').slideUp(150);
         }
     });
+
+    $('#category, #area').on('change', fetchResultsCount);
+
+    $('#slider-follower, #slider-engagement').on('slideStop', fetchResultsCount);
+
+    function fetchResultsCount() {
+        const category = $('#category').val();
+        const area = $('#area').val();
+        const [followers_min, followers_max] = $('#slider-follower').data('slider')?.getValue() || [followersBottom, followersTop];
+        const [er_min, er_max] = $('#slider-engagement').data('slider')?.getValue() || [engagementRateBottom, engagementRateTop];
+
+        let formBody = new FormData();
+
+        category?.forEach(cat => formBody.append('category[]', cat));
+        area?.forEach(a => formBody.append('area[]', a));
+
+        formBody.append('followers_min', followers_min);
+        formBody.append('followers_max', followers_max);
+        formBody.append('er_min', er_min);
+        formBody.append('er_max', er_max);
+
+        fetch(initURL + 'api/master/counter', {
+                method: 'POST',
+                body: formBody
+            })
+            .then(res => res.json())
+            .then(response => {
+                const count = response.count || 0;
+                $('#btn-show').text(`Show ${count.toLocaleString()} Results`);
+            })
+            .catch(err => {
+                console.error(err);
+                $('#btn-show').text(`Show 0 Results`);
+            });
+    }
 
     fetchCategories = () => {
         fetch(initURL + 'api/master/categories', {

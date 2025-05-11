@@ -6,7 +6,7 @@
         <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
             <?php if ($this->session->has_userdata('username')) : ?>
                 <li class="nav-item">
-                    <a href="<?= base_url('logout') ?>" class="nav-link">
+                    <a href="<?= base_url('auth/signOut') ?>" class="nav-link">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </li>

@@ -67,7 +67,7 @@ Class M_Master extends CI_model {
         ];
     }
 
-    public function influencers($limit = 10, $offset = 0, $filters = []) {
+    public function influencers($limit = null, $offset = null, $filters = []) {
         $this->db->select("inf.id, inf.name, inf.username_instagram, inf.category_id, inf.followers, inf.engagement_rate, (
             SELECT JSON_AGG(
                 JSON_BUILD_OBJECT(
@@ -91,8 +91,8 @@ Class M_Master extends CI_model {
                 $this->db->group_end();
             }
 
-            if (!empty($filters['category'])) {
-                $this->db->where('inf.category_id', $filters['category']);
+            if (count($filters['category']) > 0) {
+                $this->db->where_in('inf.category_id', $filters['category']);
             }
 
             if (!empty($filters['engagement_rate_bottom']) && !empty($filters['engagement_rate_top'])) {
@@ -101,8 +101,13 @@ Class M_Master extends CI_model {
             }
 
             if (!empty($filters['followers_bottom']) && !empty($filters['followers_top'])) {
-                $this->db->where('inf.followers >', $filters['followers_bottom'])
-                    ->where('inf.followers <=', $filters['followers_top']);
+                if ($filters['followers_top'] == 1000000) {
+                    // No cap
+                    $this->db->where('inf.followers >=', $filters['followers_bottom']);
+                } else {
+                    $this->db->where('inf.followers >', $filters['followers_bottom'])
+                        ->where('inf.followers <=', $filters['followers_top']);
+                }
             }
 
             if (count($filters['area']) > 0) {
@@ -116,7 +121,9 @@ Class M_Master extends CI_model {
             }
         }
 
-        $this->db->limit($limit, $offset);
+        if (!is_null($limit) && !is_null($offset)) {
+            $this->db->limit($limit, $offset);
+        }
 
         $this->db->order_by('inf.engagement_rate', 'DESC');
         $this->db->order_by('inf.followers', 'DESC');
