@@ -28,24 +28,24 @@ class Migration_Seeder_roles extends CI_Migration
         $param[] = [ //1
             'name' => 'super admin',
             'description' => 'Super Admin Paling Seksi',
-            'created_by' => 'TuhanYME',
-            'updated_by' => 'TuhanYME',
+            'created_by' => 'superadmin',
+            'updated_by' => 'superadmin',
             'created_at' => $date,
             'updated_at' => $date,
         ];
         $param[] = [ //2
             'name' => 'admin',
             'description' => 'Administrator di Bawah Super Admin',
-            'created_by' => 'TuhanYME',
-            'updated_by' => 'TuhanYME',
+            'created_by' => 'superadmin',
+            'updated_by' => 'superadmin',
             'created_at' => $date,
             'updated_at' => $date,
         ];
         $param[] = [ //3
             'name' => 'user',
             'description' => 'User',
-            'created_by' => 'TuhanYME',
-            'updated_by' => 'TuhanYME',
+            'created_by' => 'superadmin',
+            'updated_by' => 'superadmin',
             'created_at' => $date,
             'updated_at' => $date,
         ];

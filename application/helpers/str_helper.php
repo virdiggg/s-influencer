@@ -1,5 +1,41 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
+if (!function_exists('parseFollowers'))
+{
+    /**
+     * Convert number to words in Indonesian currency format.
+     *
+     * @param int $number
+     * @return string
+     */
+    function parseFollowers($val)
+    {
+        $val = strtolower(trim($val));
+        if (strpos($val, 'k') !== false) {
+            return floatval($val) * 1000;
+        } elseif (strpos($val, 'm') !== false) {
+            return floatval($val) * 1000000;
+        } elseif (strpos($val, 'b') !== false) {
+            return floatval($val) * 1000000000;
+        }
+        return floatval($val);
+    }
+}
+
+if (!function_exists('parseER'))
+{
+    /**
+     * Convert number to words in Indonesian currency format.
+     *
+     * @param int $number
+     * @return string
+     */
+    function parseER($val)
+    {
+        return floatval(str_replace(',', '.', $val));
+    }
+}
+
 if (!function_exists('numberToWords'))
 {
     /**

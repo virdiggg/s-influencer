@@ -28,7 +28,19 @@ class Migration_Seeder_role_to_users extends CI_Migration
         $param[] = [
             'user_id' => 1,
             'role_id' => 1,
-            'created_by' => 'TuhanYME',
+            'created_by' => 'superadmin',
+            'created_at' => $date,
+        ];
+        $param[] = [
+            'user_id' => 2,
+            'role_id' => 2,
+            'created_by' => 'superadmin',
+            'created_at' => $date,
+        ];
+        $param[] = [
+            'user_id' => 3,
+            'role_id' => 3,
+            'created_by' => 'superadmin',
             'created_at' => $date,
         ];
         $this->db->insert_batch($this->name, $param);

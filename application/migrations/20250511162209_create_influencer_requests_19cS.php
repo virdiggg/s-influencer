@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-Class Migration_Create_ms_influencers_ZXDb extends CI_Migration {
+Class Migration_Create_influencer_requests_19cS extends CI_Migration {
     /**
      * Array table fields.
      * 
@@ -24,13 +24,17 @@ Class Migration_Create_ms_influencers_ZXDb extends CI_Migration {
 
     public function __construct() {
         parent::__construct();
-        $this->name = 'ms_influencers';
+        $this->name = 'influencer_requests';
         $this->primary = 'id';
         $this->fields = [
             $this->primary => [
                 'type' => 'BIGINT',
                 'unsigned' => TRUE,
                 'auto_increment' => TRUE,
+            ],
+            'influencer_id' => [
+                'type' => 'BIGINT',
+                'unsigned' => TRUE,
             ],
             'name' => [
                 'type' => 'VARCHAR',
@@ -45,13 +49,6 @@ Class Migration_Create_ms_influencers_ZXDb extends CI_Migration {
             ],
             'engagement_rate' => [
                 'type' => 'FLOAT',
-            ],
-            'area_id' => [
-                'type' => 'TEXT',
-            ],
-            'category_id' => [
-                'type' => 'BIGINT',
-                'unsigned' => TRUE,
             ],
             'created_by' => [
                 'type' => 'VARCHAR',
