@@ -22,9 +22,36 @@ Class Home extends CI_Controller {
     public function index() {
         $data = [
             'title' => $this->title,
+            'view' => 'home/index',
+            'js' => [
+                'home/index.php'
+            ],
         ];
 
-        return $this->load->view('layout/wrapper', $data);
+        $this->load->model('M_Master', 'master', TRUE);
+        $draw = $this->input->post('draw') ? sanitizeString($this->input->post('draw')) : 1;
+        $length = $this->input->post('length') ? sanitizeString($this->input->post('length')) : 10;
+        $start = $this->input->post('start') ? sanitizeString($this->input->post('start')) : 0;
+        $search = $this->input->post('search') ? strtolower(sanitizeString($this->input->post('search'))) : null;
+        $area = $this->input->post('area') ? sanitizeString($this->input->post('area')) : [];
+        $category = $this->input->post('category') ? sanitizeString($this->input->post('category')) : null;
+        $er_min = $this->input->post('er_min') ? sanitizeString($this->input->post('er_min')) : null;
+        $er_max = $this->input->post('er_max') ? sanitizeString($this->input->post('er_max')) : null;
+        $followers_min = $this->input->post('followers_min') ? sanitizeString($this->input->post('followers_min')) : null;
+        $followers_max = $this->input->post('followers_max') ? sanitizeString($this->input->post('followers_max')) : null;
+
+        $result = $this->master->datatables($length, $start, [
+            'search' => $search,
+            'area' => $area,
+            'category' => $category,
+            'engagement_rate_bottom' => $er_min,
+            'engagement_rate_top' => $er_max,
+            'followers_bottom' => $followers_min,
+            'followers_top' => $followers_max,
+        ]);
+
+        dd($result);
+        return $this->load->view('layout/topnav/wrapper', $data);
     }
 
     /**

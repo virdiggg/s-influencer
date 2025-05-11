@@ -46,9 +46,6 @@ Class Migration_Create_ms_influencers_ZXDb extends CI_Migration {
             'engagement_rate' => [
                 'type' => 'FLOAT',
             ],
-            'area_id' => [
-                'type' => 'TEXT',
-            ],
             'category_id' => [
                 'type' => 'BIGINT',
                 'unsigned' => TRUE,

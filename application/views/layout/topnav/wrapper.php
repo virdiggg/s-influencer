@@ -6,19 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex,nofollow" />
     <meta http-equiv="Cache-Control" content="max-age=86400" />
+    <meta http-equiv="Cache-Control" content="max-age=86400" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title><?= $title ?: 'Influencer' ?></title>
 
-    <?php require_once(LAYOUT_PATH . 'head.php'); ?>
+    <?php require_once(LAYOUT_PATH . 'topnav' . DIRECTORY_SEPARATOR . 'head.php'); ?>
 </head>
 
 <body class="hold-transition layout-top-nav">
     <div class="wrapper">
-        <?php require_once(LAYOUT_PATH . 'header-nav.php'); ?>
+        <?php require_once(LAYOUT_PATH . 'topnav' . DIRECTORY_SEPARATOR . 'header-nav.php'); ?>
 
-        <div class="content-wrapper"><?php if (isset($view)): $this->load->view($view); endif; ?></div>
+        <div class="content-wrapper">
+            <?php if (isset($view)): $this->load->view($view); endif; ?>
+        </div>
         <div id="simple-toast" class="simple-toast hidden"></div>
 
-        <?php require_once(LAYOUT_PATH . 'footer.php'); ?>
+        <?php require_once(LAYOUT_PATH . 'topnav' . DIRECTORY_SEPARATOR . 'footer.php'); ?>
         <button id="installButton" style="display: none;">Install App</button>
     </div>
 

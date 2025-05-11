@@ -59,7 +59,8 @@ class Migration_Seeder_influencers extends CI_Migration
                 ];
             }
             $category_id = $categoryIndex[$category];
-            $areaParts = explode('/', $location);
+
+            $influencerIndex = count($influencers) + 1;
 
             $influencers[] = [
                 'name' => $name,
@@ -67,7 +68,6 @@ class Migration_Seeder_influencers extends CI_Migration
                 'category_id' => $category_id,
                 'followers' => $followers,
                 'engagement_rate' => $er,
-                'area_id' => json_encode($areaParts),
                 'created_by' => 'superadmin',
                 'updated_by' => 'superadmin',
                 'created_at' => $date,
@@ -87,12 +87,24 @@ class Migration_Seeder_influencers extends CI_Migration
                         'updated_at' => $date,
                     ];
                 }
+
+                $area_id = $areaIndex[$area];
+                $influencers_mapping[] = [
+                    'influencer_id' => $influencerIndex,
+                    'area_id' => $area_id,
+                    'created_by' => 'superadmin',
+                    'updated_by' => 'superadmin',
+                    'created_at' => $date,
+                    'updated_at' => $date,
+                ];
             }
         }
 
+        // Insert data
         $this->db->insert_batch('ms_areas', $areas);
         $this->db->insert_batch('ms_categories', $categories);
         $this->db->insert_batch('ms_influencers', $influencers);
+        $this->db->insert_batch('influencer_mappings', $influencers_mapping);
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-Class Migration_Create_influencer_requests_19cS extends CI_Migration {
+Class Migration_Create_influencer_mappings_ejlc extends CI_Migration {
     /**
      * Array table fields.
      * 
@@ -24,7 +24,7 @@ Class Migration_Create_influencer_requests_19cS extends CI_Migration {
 
     public function __construct() {
         parent::__construct();
-        $this->name = 'influencer_requests';
+        $this->name = 'influencer_mappings';
         $this->primary = 'id';
         $this->fields = [
             $this->primary => [
@@ -36,23 +36,9 @@ Class Migration_Create_influencer_requests_19cS extends CI_Migration {
                 'type' => 'BIGINT',
                 'unsigned' => TRUE,
             ],
-            'name' => [
-                'type' => 'VARCHAR',
-                'constraint' => 255,
-            ],
-            'username_instagram' => [
-                'type' => 'VARCHAR',
-                'constraint' => 150,
-            ],
-            'followers' => [
-                'type' => 'INT',
-            ],
-            'engagement_rate' => [
-                'type' => 'FLOAT',
-            ],
-            'note' => [
-                'type' => 'TEXT',
-                'null' => TRUE,
+            'area_id' => [
+                'type' => 'BIGINT',
+                'unsigned' => TRUE,
             ],
             'created_by' => [
                 'type' => 'VARCHAR',

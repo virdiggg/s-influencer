@@ -87,7 +87,7 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 // Custom constants
 defined('VIEW_PATH')           OR define('VIEW_PATH', APPPATH . 'views' . DIRECTORY_SEPARATOR);
 defined('LAYOUT_PATH')         OR define('LAYOUT_PATH', VIEW_PATH . 'layout' . DIRECTORY_SEPARATOR);
-defined('SCRIPT_PATH')         OR define('SCRIPT_PATH', VIEW_PATH . 'script' . DIRECTORY_SEPARATOR);
+defined('SCRIPT_PATH')         OR define('SCRIPT_PATH', VIEW_PATH . 'scripts' . DIRECTORY_SEPARATOR);
 defined('ASSETS_PATH')         OR define('ASSETS_PATH', FCPATH . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR);
 defined('UPLOAD_PATH')         OR define('UPLOAD_PATH', FCPATH . DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR);
 defined('STORAGE_PATH')        OR define('STORAGE_PATH', APPPATH . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR);
