@@ -46,7 +46,7 @@
             // console.log(window.innerHeight) //visible part of screen
             if ((window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight) {
                 if (parseInt(startCounting) % 10 === 0) {
-                    document.getElementById('loading').innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+                    // document.getElementById('loading').innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
                     datatables();
                 }
             }
@@ -81,44 +81,6 @@
         });
     }
 
-    // $('#show-slider-follower').on('click', function() {
-    //     const $row = $(this).siblings('.dropdown-row');
-
-    //     // Slide down the row if hidden, up if shown
-    //     $row.slideToggle(150, function() {
-    //         // Only initialize slider if it hasn't been initialized yet
-    //         const $slider = $row.find('#slider-follower');
-    //         if (!$slider.hasClass('slider-initialized')) {
-    //             $slider.slider({
-    //                 tooltip: 'show',
-    //                 min: 0,
-    //                 max: 100,
-    //                 step: 1,
-    //                 value: [0, 20]
-    //             }).addClass('slider-initialized');
-    //         }
-    //     });
-    // });
-
-    // $('#show-slider-engagement').on('click', function() {
-    //     const $row = $(this).siblings('.dropdown-row');
-
-    //     // Slide down the row if hidden, up if shown
-    //     $row.slideToggle(150, function() {
-    //         // Only initialize slider if it hasn't been initialized yet
-    //         const $slider = $row.find('#slider-engagement');
-    //         if (!$slider.hasClass('slider-initialized')) {
-    //             $slider.slider({
-    //                 tooltip: 'show',
-    //                 min: 0,
-    //                 max: 100,
-    //                 step: 1,
-    //                 value: [0, 20]
-    //             }).addClass('slider-initialized');
-    //         }
-    //     });
-    // });
-
     let sliderValues = {};
 
     $('.show-slider').on('click', function(e) {
@@ -150,8 +112,6 @@
         });
     });
 
-
-    // Close dropdown-row when clicking outside
     $(document).on('click', function(e) {
         const $target = $(e.target);
         const isInsideDropdown = $target.closest('.dropdown-row, .show-slider').length > 0;
