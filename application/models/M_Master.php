@@ -137,9 +137,9 @@ Class M_Master extends CI_model {
             $start++;
             $r->no = $start;
             if ($this->authenticated->isAuthenticated()) {
-                $r->action = '<button type="button" class="btn btn-primary btn-sm" onclick="showDetail(' . $r->id . ')">Detail</button>';
+                $r->action = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showDetail(' . $r->id . ')">Detail</button>';
             } else {
-                $r->action = '<button type="button" class="btn btn-primary btn-sm" onclick="showLoginModal()">Detail</button>';
+                $r->action = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showLoginModal()">Detail</button>';
             }
         }
 

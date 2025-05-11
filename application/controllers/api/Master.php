@@ -7,14 +7,14 @@ Class Master extends CI_Controller {
     }
 
     public function categories() {
-        if (!$this->authenticated->isAuthenticated()) {
-            http_response_code(401);
-            echo json_encode([
-                'status' => FALSE,
-                'message' => 'Session expired',
-            ]);
-            return;
-        }
+        // if (!$this->authenticated->isAuthenticated()) {
+        //     http_response_code(401);
+        //     echo json_encode([
+        //         'status' => FALSE,
+        //         'message' => 'Session expired',
+        //     ]);
+        //     return;
+        // }
 
         echo json_encode([
             'status' => TRUE,
@@ -25,14 +25,14 @@ Class Master extends CI_Controller {
     }
 
     public function areas() {
-        if (!$this->authenticated->isAuthenticated()) {
-            http_response_code(401);
-            echo json_encode([
-                'status' => FALSE,
-                'message' => 'Unauthorized',
-            ]);
-            return;
-        }
+        // if (!$this->authenticated->isAuthenticated()) {
+        //     http_response_code(401);
+        //     echo json_encode([
+        //         'status' => FALSE,
+        //         'message' => 'Unauthorized',
+        //     ]);
+        //     return;
+        // }
 
         echo json_encode([
             'status' => TRUE,

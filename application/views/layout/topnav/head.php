@@ -17,5 +17,6 @@
 <script type="text/javascript" src="<?= base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 <script type="text/javascript" src="<?= base_url('assets/vendor/bootstrap-slider/bootstrap-slider.min.js') ?>"></script>
 <script type="text/javascript">
-    var initURL = "<?= base_url('/') ?>";
+    const initURL = "<?= base_url('/') ?>";
+    const isLoggedIn = <?= $this->session->userdata('username') ? 'true' : 'false' ?>;
 </script>
