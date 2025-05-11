@@ -11,6 +11,7 @@ Class Master extends CI_Controller {
         //     http_response_code(401);
         //     echo json_encode([
         //         'status' => FALSE,
+        //         'statusCode' => 401,
         //         'message' => 'Session expired',
         //     ]);
         //     return;
@@ -18,6 +19,7 @@ Class Master extends CI_Controller {
 
         echo json_encode([
             'status' => TRUE,
+            'statusCode' => 200,
             'message' => 'Data ditemukan',
             'data' => $this->master->categories(),
         ]);
@@ -29,6 +31,7 @@ Class Master extends CI_Controller {
         //     http_response_code(401);
         //     echo json_encode([
         //         'status' => FALSE,
+        //         'statusCode' => 401,
         //         'message' => 'Unauthorized',
         //     ]);
         //     return;
@@ -36,6 +39,7 @@ Class Master extends CI_Controller {
 
         echo json_encode([
             'status' => TRUE,
+            'statusCode' => 200,
             'message' => 'Data ditemukan',
             'data' => $this->master->areas(),
         ]);
@@ -47,6 +51,7 @@ Class Master extends CI_Controller {
             http_response_code(401);
             echo json_encode([
                 'status' => FALSE,
+                'statusCode' => 401,
                 'message' => 'Unauthorized',
             ]);
             return;
@@ -63,9 +68,10 @@ Class Master extends CI_Controller {
         $this->form_validation->set_rules('followers_max', 'Followers Max', 'trim');
 
         if ($this->form_validation->run() === FALSE) {
-            http_response_code(400);
+            http_response_code(422);
             echo json_encode([
                 'status' => FALSE,
+                'statusCode' => 422,
                 'message' => validation_errors(),
             ]);
             return;
@@ -94,6 +100,7 @@ Class Master extends CI_Controller {
 
         echo json_encode([
             'status' => TRUE,
+            'statusCode' => 200,
             'message' => 'Data ditemukan',
             'data' => $result['data'],
             'draw' => intval($draw),

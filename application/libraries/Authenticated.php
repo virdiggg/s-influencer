@@ -66,10 +66,6 @@ class Authenticated
      * @return string
      */
     public function generateBearerToken($user) {
-        $usernameDefault = $user['username_default'];
-        $user['username'] = $usernameDefault;
-        unset($user['username_default'], $usernameDefault);
-
         $param = [
             'user' => $user,
             'token' => $this->generateToken(),
@@ -97,13 +93,13 @@ class Authenticated
      * @return null|string
      */
     public function signIn($username, $password) {
-        $this->CI->load->model('M_Users', 'user', TRUE);
+        $this->CI->load->model('setting/M_Users', 'user', TRUE);
         $result = $this->CI->user->authenticate($username, $password);
         if ($result['data'] === null) {
             return (object) $result;
         }
 
-        $result['token'] = $this->generateBearerToken($result['data']);
+        $this->setUserdata($result['data']);
         return (object) $result;
     }
 
@@ -170,8 +166,6 @@ class Authenticated
 
         $this->user = (object) $dataToken['user'];
         $this->username = $this->user->username;
-        $this->isAdmin = $this->user->group === 'admin';
-        $this->isDIPStaff = $this->user->group === 'staff_dip';
         return $this->user;
     }
 

@@ -20,23 +20,6 @@ class Storage extends CI_Controller
         header('Content-Disposition: inline; filename="' . basename($result->name) . '"');
         header('Content-Length: ' . filesize($result->name));
         readfile($result->name);
-        exit;
-    }
-
-    public function logs() {
-        $this->logs = new MYViewer();
-        // Log path
-        $this->logs->setPath(APPPATH . 'logs');
-        // Log extension
-        // $this->logs->setExt('php');
-
-        $filterDate = $this->input->post('date') ? $this->input->post('date') : date('Y-m-d');
-
-        $this->logs->setName('log-' . $filterDate);
-
-        $result = $this->logs->getLogs();
-
-        echo json_encode($result, JSON_PRETTY_PRINT);
         return;
     }
 }
