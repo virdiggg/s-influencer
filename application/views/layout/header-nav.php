@@ -1,4 +1,4 @@
-<?php require_once(LAYOUT_PATH . 'header.php'); ?>
+<?php require_once(LAYOUT_PATH . 'navigations.php'); ?>
 <div class="content-wrapper">
   <div class="content-header">
     <div class="container">

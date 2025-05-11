@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="max-age=86400" />
     <title><?= $title ?: 'Influencer' ?></title>
 
-    <?php require_once(LAYOUT_PATH . 'header.php'); ?>
+    <?php require_once(LAYOUT_PATH . 'head.php'); ?>
 </head>
 
 <body class="hold-transition layout-top-nav">
