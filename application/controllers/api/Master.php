@@ -77,7 +77,6 @@ Class Master extends CI_Controller {
             return;
         }
 
-        $draw = $this->input->post('draw') ? sanitizeString($this->input->post('draw')) : 1;
         $length = $this->input->post('length') ? sanitizeString($this->input->post('length')) : 10;
         $start = $this->input->post('start') ? sanitizeString($this->input->post('start')) : 0;
         $search = $this->input->post('search') ? strtolower(sanitizeString($this->input->post('search'))) : null;
@@ -106,7 +105,6 @@ Class Master extends CI_Controller {
             'statusCode' => 200,
             'message' => 'Data ditemukan',
             'data' => $result['data'],
-            'draw' => intval($draw),
             'recordsTotal' => $result['total'],
             'recordsFiltered' => $result['total'],
         ]);
@@ -155,8 +153,8 @@ Class Master extends CI_Controller {
 
         $result = $this->master->influencers(null, null, [
             'search' => $search ?: null,
-            'area' => $area ?: [],
-            'category' => $category ?: [],
+            'area' => $area,
+            'category' => $category,
             'engagement_rate_bottom' => $er_min ?: 0,
             'engagement_rate_top' => $er_max ?: null,
             'followers_bottom' => $followers_min ?: 5000,

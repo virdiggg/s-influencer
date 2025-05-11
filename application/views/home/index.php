@@ -59,11 +59,12 @@
     <div class="container">
         <h2 class="text-center display-4"></h2>
         <?php
-        if ($this->session->has_userdata('username')):
+        if ($this->session->has_userdata('username')) {
             include_once 'authorized.php';
-        else:
+        } else {
             include_once 'unauthorized.php';
-        endif; ?>
+        }
+        ?>
         <input type="hidden" value="0" id="startCounting" name="startCounting" required />
 
         <div class="timeline" id="show-logs-body"></div>
