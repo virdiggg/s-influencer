@@ -15,13 +15,13 @@
     <div class="wrapper">
         <?php require_once(LAYOUT_PATH . 'header-nav.php'); ?>
 
-        <div class="content-wrapper">{% block content %}{% endblock %}</div>
+        <div class="content-wrapper"><?php if (isset($view)): $this->load->view($view); endif; ?></div>
         <div id="simple-toast" class="simple-toast hidden"></div>
 
         <?php require_once(LAYOUT_PATH . 'footer.php'); ?>
+        <button id="installButton" style="display: none;">Install App</button>
     </div>
 
-    <button id="installButton" style="display: none;">Install App</button>
     <script type="text/javascript">
         function showToast(message, timeout = 3000) {
             const toast = document.getElementById("simple-toast");
@@ -98,6 +98,11 @@
             }
         }
     </script>
+    <?php if (isset($js) && count($js) > 0) :
+        foreach ((array) $js as $j) :
+            require_once(SCRIPT_PATH . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $j));
+        endforeach;
+    endif; ?>
 </body>
 
 </html>
