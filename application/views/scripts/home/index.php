@@ -15,13 +15,9 @@
             $('.dropdown-row:visible').slideUp(150);
         }
     });
-
     window.onpopstate = function(event) {
-        // Parse current URL search parameters
         const params = new URLSearchParams(location.search);
-        console.log(params);
 
-        // Set filters based on URL
         $('#category').val(params.getAll('category[]')).trigger('change');
         $('#area').val(params.getAll('area[]')).trigger('change');
 
@@ -30,14 +26,18 @@
         const er_min = parseFloat(params.get('er_min') || engagementRateBottom);
         const er_max = parseFloat(params.get('er_max') || engagementRateTop);
 
-        // Update sliders (assuming you're using Bootstrap Slider or similar)
-        $('#slider-follower').slider('setValue', [followers_min, followers_max]);
-        $('#slider-engagement').slider('setValue', [er_min, er_max]);
+        const $followerSlider = $('#slider-follower');
+        const $erSlider = $('#slider-engagement');
 
-        // Reset startCounting if needed
+        // Ensure sliders are initialized before setting
+        ensureSliderInitialized($followerSlider, 'slider-follower', [followers_min, followers_max]);
+        ensureSliderInitialized($erSlider, 'slider-engagement', [er_min, er_max]);
+
+        // Now it's safe to set the value
+        $followerSlider.slider('setValue', [followers_min, followers_max]);
+        $erSlider.slider('setValue', [er_min, er_max]);
+
         startCounting = 0;
-
-        // Trigger datatables reload
         datatables();
     };
 
@@ -146,7 +146,7 @@
 
                     if (response.data.length == 10) {
                         html += `<div class="col-12 text-center">
-                            <button class="btn btn-primary" id="load-more">Load More</button>
+                            <button class="btn btn-primary" id="btn-load-more">Load More</button>
                         </div>`;
                     }
                 }
@@ -179,7 +179,20 @@
 
     $('#btn-show').on('click', function(e) {
         e.preventDefault();
+        startCounting = 0;
         datatables();
+    });
+
+    document.getElementById('result-placeholder').addEventListener('click', function (e) {
+        if (e.target && e.target.id === 'btn-load-more') {
+            e.preventDefault();
+
+            // Optional: disable button during fetch
+            e.target.disabled = true;
+            e.target.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
+
+            datatables(); // Call your data fetching function again
+        }
     });
 
     $('.show-slider').on('click', function(e) {
@@ -231,6 +244,37 @@
         const isChecked = $(this).is(':checked');
         $('#result-placeholder input.icheck').prop('checked', isChecked);
     });
+
+    function ensureSliderInitialized($slider, id, defaultValue) {
+        if (!$slider.hasClass('slider-initialized')) {
+            let min = 0;
+            let max = 100;
+            let step = 1;
+            let savedVal = defaultValue;
+
+            if (sliderValues[id]) {
+                savedVal = sliderValues[id];
+            }
+
+            if ($slider.attr('id') === 'slider-follower') {
+                min = followersBottom;
+                max = 1000000;
+                step = followersBottom;
+            }
+
+            $slider.slider({
+                tooltip: 'show',
+                min: min,
+                max: max,
+                step: step,
+                value: savedVal
+            }).addClass('slider-initialized');
+
+            $slider.on('slideStop', function(e) {
+                sliderValues[id] = e.value;
+            });
+        }
+    }
 
     function fetchResultsCount() {
         const category = $('#category').val();
