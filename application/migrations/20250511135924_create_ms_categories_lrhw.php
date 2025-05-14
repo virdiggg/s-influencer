@@ -73,7 +73,7 @@ Class Migration_Create_ms_categories_lrhw extends CI_Migration {
         $this->dbforge->create_table($this->name);
         // Uncomment if you want to create index for this table.
         // Recommended if this table doesn't have UPDATE and DELETE operations. PostgreSQL only.
-        $this->db->query('CREATE INDEX CONCURRENTLY ON "'.$this->name.'" ("id", "name")');
+        // $this->db->query('CREATE INDEX CONCURRENTLY ON "'.$this->name.'" ("id", "name")');
     }
 
     /**
