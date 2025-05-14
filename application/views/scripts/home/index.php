@@ -107,7 +107,7 @@
                     response.data.forEach((val) => {
                         let areas = [];
                         try {
-                            areas = JSON.parse(val.areas).map(a => a.name).join(', ');
+                            areas = JSON.parse(val.areas).map(a => a.area).join(', ');
                         } catch (e) {
                             areas = '';
                         }
@@ -131,8 +131,8 @@
                             </div>
                         </div>`;
 
-                        html += `<div class="col-2">${val.followers}</div>`;
-                        html += `<div class="col-2">${val.engagement_rate}</div>`;
+                        html += `<div class="col-2">${formatNumber(val.followers)}</div>`;
+                        html += `<div class="col-2">${val.engagement_rate}%</div>`;
                         html += `<div class="col-2">${areas}</div>`;
                         html += `<div class="col-1 text-right">
                             <button class="btn btn-sm btn-outline-secondary mr-1" title="Edit"><i class="fas fa-edit"></i></button>
@@ -163,6 +163,13 @@
             }).finally(() => {
                 document.getElementById('loading').innerHTML = '';
             });
+    }
+
+    function formatNumber(num) {
+        if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1).replace(/\.0$/, '') + 'b';
+        if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'm';
+        if (num >= 1_000) return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+        return num;
     }
 
     function pushHistoryFromForm(formData) {
