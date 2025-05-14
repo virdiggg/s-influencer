@@ -8,7 +8,8 @@
                     </button>
                 </div>
             </div>
-            <div class="col-4">
+
+            <div class="col-5 col-sm-4">
                 <div class="form-group authorized-only show-slider-follower">
                     <button type="button" class="btn btn-outline-success btn-block text-left">
                         Followers
@@ -16,13 +17,14 @@
                 </div>
             </div>
 
-            <div class="col-4">
+            <div class="col-5 col-sm-4">
                 <div class="form-group authorized-only show-slider-engagement">
                     <button type="button" class="btn btn-outline-success btn-block text-left">
                         Engagement
                     </button>
                 </div>
             </div>
+
             <div class="col-2">
                 <div class="form-group authorized-only">
                     <button type="button" class="btn btn-outline-success btn-block text-left">
@@ -30,7 +32,8 @@
                     </button>
                 </div>
             </div>
-            <div class="col-2">
+
+            <div class="col-12 col-sm-2">
                 <button type="button" class="btn btn-success btn-block authorized-only" id="btn-show">Show 1K Results</button>
             </div>
         </div>

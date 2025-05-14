@@ -65,6 +65,7 @@
             include_once 'unauthorized.php';
         }
         ?>
+        <?php include_once 'tables.php'; ?>
         <input type="hidden" value="0" id="startCounting" name="startCounting" required />
 
         <div class="timeline" id="show-logs-body"></div>
