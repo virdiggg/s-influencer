@@ -60,8 +60,6 @@ Class Master extends CI_Controller {
         $this->form_validation->set_rules('length', 'Length', 'trim');
         $this->form_validation->set_rules('start', 'Start', 'trim');
         $this->form_validation->set_rules('search', 'Search', 'trim');
-        $this->form_validation->set_rules('area', 'Area', 'trim');
-        $this->form_validation->set_rules('category', 'Category', 'trim');
         $this->form_validation->set_rules('er_min', 'ER Min', 'trim');
         $this->form_validation->set_rules('er_max', 'ER Max', 'trim');
         $this->form_validation->set_rules('followers_min', 'Followers Min', 'trim');
@@ -80,8 +78,8 @@ Class Master extends CI_Controller {
         $length = $this->input->post('length') ? sanitizeString($this->input->post('length')) : 10;
         $start = $this->input->post('start') ? sanitizeString($this->input->post('start')) : 0;
         $search = $this->input->post('search') ? strtolower(sanitizeString($this->input->post('search'))) : null;
-        $area = $this->input->post('area') ? $this->input->post('area') : [];
-        $category = $this->input->post('category') ? $this->input->post('category') : null;
+        $area = $this->input->post('area') ? json_decode($this->input->post('area'), true) : [];
+        $category = $this->input->post('category') ? json_decode($this->input->post('category'), true) : [];
         $er_min = $this->input->post('er_min') ? sanitizeString($this->input->post('er_min')) : null;
         $er_max = $this->input->post('er_max') ? sanitizeString($this->input->post('er_max')) : null;
         $followers_min = $this->input->post('followers_min') ? sanitizeString($this->input->post('followers_min')) : null;
@@ -123,8 +121,6 @@ Class Master extends CI_Controller {
         }
 
         $this->form_validation->set_rules('search', 'Search', 'trim');
-        $this->form_validation->set_rules('area', 'Area', 'trim');
-        $this->form_validation->set_rules('category', 'Category', 'trim');
         $this->form_validation->set_rules('er_min', 'ER Min', 'trim');
         $this->form_validation->set_rules('er_max', 'ER Max', 'trim');
         $this->form_validation->set_rules('followers_min', 'Followers Min', 'trim');
@@ -141,8 +137,8 @@ Class Master extends CI_Controller {
         }
 
         $search = strtolower(sanitizeString($this->input->post('search')));
-        $area = $this->input->post('area') ? $this->input->post('area') : [];
-        $category = $this->input->post('category') ? $this->input->post('category') : [];
+        $area = $this->input->post('area') ? json_decode($this->input->post('area'), true) : [];
+        $category = $this->input->post('category') ? json_decode($this->input->post('category'), true) : [];
         $er_min = sanitizeString($this->input->post('er_min'));
         $er_max = sanitizeString($this->input->post('er_max'));
         $followers_min = sanitizeString($this->input->post('followers_min'));

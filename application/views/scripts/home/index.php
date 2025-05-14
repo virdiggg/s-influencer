@@ -75,14 +75,16 @@
 
         let formBody = new FormData();
 
-        category?.forEach(cat => formBody.append('category[]', cat));
-        area?.forEach(a => formBody.append('area[]', a));
+        let categoryJSON = JSON.stringify(category);
+        let areaJSON = JSON.stringify(area);
 
         formBody.append('followers_min', followers_min);
         formBody.append('followers_max', followers_max);
         formBody.append('er_min', er_min);
         formBody.append('er_max', er_max);
         formBody.append('start', startCounting);
+        formBody.append('category', categoryJSON);
+        formBody.append('area', areaJSON);
 
         document.getElementById('loading').innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
         document.getElementById('result-container').classList.add('d-none');
@@ -135,8 +137,7 @@
                         html += `<div class="col-2">${val.engagement_rate}%</div>`;
                         html += `<div class="col-2">${areas}</div>`;
                         html += `<div class="col-1 text-right">
-                            <button class="btn btn-sm btn-outline-secondary mr-1" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary mr-1" onclick="openNotes('${val.id}')" title="Add to List"><i class="fas fa-folder-plus"></i></button>
                         </div>`;
 
                         html += `</div>`; // End row
@@ -163,6 +164,10 @@
             }).finally(() => {
                 document.getElementById('loading').innerHTML = '';
             });
+    }
+
+    openNotes = (id) => {
+        
     }
 
     function formatNumber(num) {
@@ -291,13 +296,15 @@
 
         let formBody = new FormData();
 
-        category?.forEach(cat => formBody.append('category[]', cat));
-        area?.forEach(a => formBody.append('area[]', a));
+        let categoryJSON = JSON.stringify(category);
+        let areaJSON = JSON.stringify(area);
 
         formBody.append('followers_min', followers_min);
         formBody.append('followers_max', followers_max);
         formBody.append('er_min', er_min);
         formBody.append('er_max', er_max);
+        formBody.append('category', categoryJSON);
+        formBody.append('area', areaJSON);
 
         fetch(initURL + 'api/master/counter', {
                 method: 'POST',
