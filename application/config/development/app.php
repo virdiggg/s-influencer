@@ -41,7 +41,7 @@ $config['encrypt_method']   = 'aes-256-gcm';
 */
 $config['using_benchmark']         = false; // true or false
 
-$config['app_name']               = 'Influencer';
+$config['app_name']               = 'Influencer Information System';
 
 $config['pusher_key']       = '';
 $config['pusher_secret']    = '';

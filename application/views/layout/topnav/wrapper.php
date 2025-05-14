@@ -8,7 +8,9 @@
     <meta http-equiv="Cache-Control" content="max-age=86400" />
     <meta http-equiv="Cache-Control" content="max-age=86400" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title><?= $title ?: 'Influencer' ?></title>
+    <link rel="icon" href="<?= base_url('assets/img/xyz.png') ?>" />
+    <link rel="apple-touch-icon" href="<?= base_url('assets/img/xyz.png') ?>" />
+    <title><?= $this->config->item('app_name'); ?></title>
 
     <?php require_once(LAYOUT_PATH . 'topnav' . DIRECTORY_SEPARATOR . 'head.php'); ?>
 </head>
