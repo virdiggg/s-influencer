@@ -126,7 +126,11 @@
                                 </div>
                                 <div class="d-flex flex-column ml-2 text-truncate">
                                     <div class="d-flex align-items-center" style="height: 20px;">
-                                        <span class="mr-1">@${val.username_instagram}</span>
+                                        <span class="mr-1">
+                                            <a href="https://www.instagram.com/${val.username_instagram}" target="_blank"
+                                                rel="noopener noreferrer" class="text-truncate" style="font-size: 16px;">
+                                                @${val.username_instagram}</a>
+                                        </span>
                                     </div>
                                     <span class="text-muted" style="font-size: 14px;">${val.name}</span>
                                 </div>
