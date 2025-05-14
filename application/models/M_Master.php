@@ -68,18 +68,35 @@ Class M_Master extends CI_model {
     }
 
     public function influencers($limit = null, $offset = null, $filters = []) {
-        $this->db->select("inf.id, inf.name, inf.username_instagram, inf.category_id, inf.followers, inf.engagement_rate, (
-            SELECT JSON_AGG(
-                JSON_BUILD_OBJECT(
-                    'id', map.id,
-                    'area_id', map.area_id,
-                    'influencer_id', map.influencer_id,
-                    'area', area.name
-                ) ORDER BY map.id
+        $this->db->select("inf.id, inf.name, inf.username_instagram, inf.category_id, inf.followers, inf.engagement_rate");
+        // PostgreSQL
+        // $this->db->select("(
+        //     SELECT JSON_AGG(
+        //         JSON_BUILD_OBJECT(
+        //             'id', map.id,
+        //             'area_id', map.area_id,
+        //             'influencer_id', map.influencer_id,
+        //             'area', area.name
+        //         ) ORDER BY map.id
+        //     )
+        //     FROM {$this->mapping} map
+        //     JOIN {$this->areas} area ON area.id = map.area_id
+        //     WHERE map.influencer_id = inf.id
+        // ) AS areas");
+        // MySQL
+        $this->db->select("(
+            SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'id', map.id,
+                'area_id', map.area_id,
+                'influencer_id', map.influencer_id,
+                'area', area.name
+            )
             )
             FROM {$this->mapping} map
             JOIN {$this->areas} area ON area.id = map.area_id
             WHERE map.influencer_id = inf.id
+            ORDER BY map.id
         ) AS areas");
         $this->db->from($this->influencers . ' inf');
 
