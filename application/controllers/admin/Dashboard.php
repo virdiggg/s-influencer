@@ -20,7 +20,10 @@ Class Dashboard extends CI_Controller {
      * @return view
      */
     public function index() {
+        $this->load->model('M_Influencer_request', 'ir', TRUE);
+
         $data = [
+            'toDoList' => $this->ir->getToDoList(),
             'title' => $this->title,
             'view' => 'admin/dashboard/index',
             'js' => [
@@ -36,27 +39,14 @@ Class Dashboard extends CI_Controller {
      * 
      * @return string JSON
      */
-    public function datatables() {
-        $draw = $this->input->post('draw') ?: 1;
-        $length = $this->input->post('length') ?: 10;
-        $start = $this->input->post('start') ?: 0;
-        $search = $this->input->post('search') ? strtolower($this->input->post('search')) : null;
-        // $columnIndex = $this->input->post('order')[0]['column']; // Column index
-        // $columnName = $this->input->post('columns')[$columnIndex]['data']; // Column name
-        // $columnSortOrder = $this->input->post('order')[0]['dir']; // asc or desc
-
-        // Your datatables query here.
-        // $datatables = [];
-        // $totalRecordsWithFilter = 0;
-        // $totalRecords = 0;
+    public function toDoList() {
+        $this->load->model('M_Influencer_request', 'ir', TRUE);
 
         $return = [
             'status' => TRUE,
-            'message' => 'Data ditemukan',
-            'draw' => intval($draw),
-            // 'aaData' => $datatables,
-            // 'iTotalDisplayRecords' => $totalRecordsWithFilter,
-            // 'iTotalRecords' => $totalRecords,
+            'statusCode' => 200,
+            'message' => 'Records found',
+            'data' => $this->ir->getToDoList(),
         ];
         echo json_encode($return);
         return;

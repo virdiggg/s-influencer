@@ -7,40 +7,20 @@ Class Master extends CI_Controller {
     }
 
     public function categories() {
-        // if (!$this->authenticated->isAuthenticated()) {
-        //     http_response_code(401);
-        //     echo json_encode([
-        //         'status' => FALSE,
-        //         'statusCode' => 401,
-        //         'message' => 'Session expired',
-        //     ]);
-        //     return;
-        // }
-
         echo json_encode([
             'status' => TRUE,
             'statusCode' => 200,
-            'message' => 'Data ditemukan',
+            'message' => 'Records found',
             'data' => $this->master->categories(),
         ]);
         return;
     }
 
     public function areas() {
-        // if (!$this->authenticated->isAuthenticated()) {
-        //     http_response_code(401);
-        //     echo json_encode([
-        //         'status' => FALSE,
-        //         'statusCode' => 401,
-        //         'message' => 'Unauthorized',
-        //     ]);
-        //     return;
-        // }
-
         echo json_encode([
             'status' => TRUE,
             'statusCode' => 200,
-            'message' => 'Data ditemukan',
+            'message' => 'Records found',
             'data' => $this->master->areas(),
         ]);
         return;
@@ -101,7 +81,7 @@ Class Master extends CI_Controller {
         echo json_encode([
             'status' => TRUE,
             'statusCode' => 200,
-            'message' => 'Data ditemukan',
+            'message' => 'Records found',
             'data' => $result['data'],
             'totalRecords' => count($result['data']),
             'nextRecords' => $result['totalRecords'],
@@ -160,7 +140,7 @@ Class Master extends CI_Controller {
         echo json_encode([
             'status' => TRUE,
             'statusCode' => 200,
-            'message' => 'Data ditemukan',
+            'message' => 'Records found',
             'count' => count($result),
         ]);
         return;

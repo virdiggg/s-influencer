@@ -5,10 +5,23 @@ Class M_Influencer_request extends CI_model {
 
     private $primary = "id";
 
-    private $exceptions = ["created_by", "created_at", "updated_by", "updated_at", "password"];
+    private $exceptions = ["created_by", "created_at", "updated_by", "updated_at"];
 
     public function __construct() {
         parent::__construct();
+    }
+
+    public function getToDoList() {
+        return $this->db->select('id, influencer_id, name, username_instagram, followers,
+            engagement_rate, note, created_by, created_at')
+            ->from($this->table)
+            ->group_start()
+                ->where('approved_by IS NULL')
+                ->where('approved_at IS NULL')
+            ->group_end()
+            ->order_by('created_at', 'DESC')
+            ->limit(5)
+            ->get()->result();
     }
 
     public function create($param) {
