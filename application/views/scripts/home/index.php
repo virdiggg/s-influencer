@@ -1,6 +1,9 @@
 <script type="text/javascript">
     var startCounting = document.getElementById('startCounting').value;
     let sliderValues = {};
+    let states = {
+        loadMore: false,
+    }
 
     const followersTop = 10000;
     const followersBottom = 5000;
@@ -15,6 +18,7 @@
             $('.dropdown-row:visible').slideUp(150);
         }
     });
+
     window.onpopstate = function(event) {
         const params = new URLSearchParams(location.search);
 
@@ -60,7 +64,7 @@
             // console.log(window.innerHeight) //visible part of screen
             if ((window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight) {
                 if (parseInt(startCounting) % 10 === 0) {
-                    // document.getElementById('loading').innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+                    states.loadMore = true;
                     datatables();
                 }
             }
@@ -95,17 +99,17 @@
             })
             .then(res => res.json())
             .then(response => {
-                let html = `<div class="row align-items-center mb-2 border-bottom">
-                    <div class="col-1"><input type="checkbox" id="check-all" class="icheck" /></div>
-                    <div class="col-4">Influencer</div>
-                    <div class="col-2">Followers</div>
-                    <div class="col-2">Engagement Rate</div>
-                    <div class="col-2">Area</div>
-                    <div class="col-1"></div>
-                </div>`;
+                let html = ``;
+                const resultBody = document.getElementById('result-body');
+
+                if (states.loadMore === false) {
+                    const dynamicRows = document.querySelectorAll('.dynamic-row');
+                    dynamicRows.forEach(row => row.remove());
+                }
 
                 if (response.statusCode == 200) {
                     document.getElementById('result-container').classList.remove('d-none');
+
                     response.data.forEach((val) => {
                         let areas = [];
                         try {
@@ -114,7 +118,7 @@
                             areas = '';
                         }
 
-                        html += `<div class="row align-items-center mb-2">`;
+                        html += `<div class="row align-items-center mb-2 dynamic-row">`;
 
                         html += `<div class="col-1"><input type="checkbox" class="icheck" /></div>`;
                         html += `<div class="col-4">
@@ -141,22 +145,38 @@
                         html += `<div class="col-2">${val.engagement_rate}%</div>`;
                         html += `<div class="col-2">${areas}</div>`;
                         html += `<div class="col-1 text-right">
-                            <button class="btn btn-sm btn-outline-secondary mr-1" onclick="openNotes('${val.id}')" title="Add to List"><i class="fas fa-folder-plus"></i></button>
+                            <button class="btn btn-sm btn-link mr-1 text-secondary" onclick="openNotes('${val.id}')" title="Add to List"><i class="fas fa-folder-plus"></i></button>
                         </div>`;
 
-                        html += `</div>`; // End row
+                        html += `</div>`; // End div row
                     });
 
                     startCounting += response.data.length;
 
-                    if (response.data.length == 10) {
-                        html += `<div class="col-12 text-center">
+                    const tempContainer = document.createElement('div');
+                    tempContainer.innerHTML = html;
+
+                    const fragment = document.createDocumentFragment();
+                    while (tempContainer.firstChild) {
+                        fragment.appendChild(tempContainer.firstChild);
+                    }
+
+                    const container = resultBody.parentNode;
+                    const nextSibling = resultBody.nextSibling;
+                    container.insertBefore(fragment, nextSibling);
+                }
+
+                if (response.data.length == 10) {
+                    const cardFooter = document.getElementById('card-footer');
+
+                    if (!cardFooter.querySelector('#btn-load-more')) {
+                        const html = `<div class="col-12 text-center">
                             <button class="btn btn-primary" id="btn-load-more">Load More</button>
                         </div>`;
+                        cardFooter.insertAdjacentHTML('beforeend', html);
                     }
                 }
 
-                document.getElementById('result-placeholder').innerHTML = html;
                 pushHistoryFromForm(formBody);
             }).catch(err => {
                 // console.log(err);
@@ -167,11 +187,13 @@
                 // });
             }).finally(() => {
                 document.getElementById('loading').innerHTML = '';
+                document.getElementById('btn-load-more').innerHTML = 'Load More';
+                document.getElementById('btn-load-more').disabled = false;
             });
     }
 
     openNotes = (id) => {
-        
+
     }
 
     function formatNumber(num) {
@@ -196,18 +218,19 @@
     $('#btn-show').on('click', function(e) {
         e.preventDefault();
         startCounting = 0;
+        states.loadMore = false;
         datatables();
     });
 
-    document.getElementById('result-placeholder').addEventListener('click', function (e) {
+    document.getElementById('result-container').addEventListener('click', function (e) {
         if (e.target && e.target.id === 'btn-load-more') {
             e.preventDefault();
 
-            // Optional: disable button during fetch
             e.target.disabled = true;
             e.target.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
 
-            datatables(); // Call your data fetching function again
+            states.loadMore = true;
+            datatables();
         }
     });
 
@@ -258,7 +281,7 @@
     $('#slider-follower, #slider-engagement').on('slideStop', fetchResultsCount);
     $('#check-all').on('change', function() {
         const isChecked = $(this).is(':checked');
-        $('#result-placeholder input.icheck').prop('checked', isChecked);
+        $('#result-header input.icheck').prop('checked', isChecked);
     });
 
     function ensureSliderInitialized($slider, id, defaultValue) {

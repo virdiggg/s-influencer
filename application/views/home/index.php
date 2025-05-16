@@ -55,6 +55,7 @@
         padding-right: 0 !important;
     }
 </style>
+
 <section class="content">
     <div class="container">
         <h2 class="text-center display-4"></h2>
