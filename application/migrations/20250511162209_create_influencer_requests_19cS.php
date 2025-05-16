@@ -72,6 +72,15 @@ Class Migration_Create_influencer_requests_19cS extends CI_Migration {
                 'type' => 'TIMESTAMP',
                 'null' => TRUE,
             ],
+            'approved_by' => [
+                'type' => 'VARCHAR',
+                'constraint' => 50,
+                'null' => TRUE,
+            ],
+            'approved_at' => [
+                'type' => 'TIMESTAMP',
+                'null' => TRUE,
+            ],
         ];
 
         // Handle keys of $this->fields.
