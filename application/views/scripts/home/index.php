@@ -103,11 +103,6 @@
                 let html = ``;
                 const resultBody = document.getElementById('result-body');
 
-                if (states.loadMore === false) {
-                    const dynamicRows = document.querySelectorAll('.dynamic-row');
-                    dynamicRows.forEach(row => row.remove());
-                }
-
                 if (response.statusCode == 200) {
                     document.getElementById('result-container').classList.remove('d-none');
 
@@ -157,7 +152,14 @@
                         html += `</div>`; // End div row
                     });
 
-                    startCounting += response.data.length;
+                    if (states.loadMore === false) {
+                        // Purge all rows if fresh load
+                        const dynamicRows = document.querySelectorAll('.dynamic-row');
+                        dynamicRows.forEach(row => row.remove());
+                    } else {
+                        // Count only if not fresh load
+                        startCounting += response.data.length;
+                    }
 
                     const tempContainer = document.createElement('div');
                     tempContainer.innerHTML = html;
@@ -239,7 +241,8 @@
                 } else {
                     $('#addCreatorModal').modal('hide');
                     showToast(response.message);
-                    datatables.draw();
+                    states.loadMore = false;
+                    datatables();
                 }
             })
             .catch(error => {

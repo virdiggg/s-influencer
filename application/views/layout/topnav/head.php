@@ -13,7 +13,8 @@
 
 <script type="text/javascript" src="<?= base_url('assets/js/jquery-3.7.1.min.js') ?>"></script>
 <script type="text/javascript" src="<?= base_url('assets/js/adminlte.min.js') ?>"></script>
-<script type="text/javascript" src="<?= base_url('assets/vendor/select2/js/select2.full.min.js') ?>" async></script>
+<script type="text/javascript" src="<?= base_url('assets/js/custom.js') ?>" async></script>
+<script type="text/javascript" src="<?= base_url('assets/vendor/select2/js/select2.full.min.js') ?>"></script>
 <script type="text/javascript" src="<?= base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 <script type="text/javascript" src="<?= base_url('assets/vendor/bootstrap-slider/bootstrap-slider.min.js') ?>"></script>
 <script type="text/javascript">
