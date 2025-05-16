@@ -142,8 +142,8 @@ Class M_Master extends CI_model {
             $this->db->limit($limit, $offset);
         }
 
-        $this->db->order_by('inf.engagement_rate', 'DESC');
         $this->db->order_by('inf.followers', 'DESC');
+        $this->db->order_by('inf.engagement_rate', 'DESC');
         $this->db->order_by('inf.name', 'ASC');
         return $this->db->get()->result();
     }
