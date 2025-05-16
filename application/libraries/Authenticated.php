@@ -45,21 +45,6 @@ class Authenticated
 	}
 
     /**
-     * Get website settings
-     * 
-     * @return void
-     */
-    public function getSettings() {
-        $this->CI->load->model('M_Web', 'web', TRUE);
-        $result = $this->CI->web->get();
-        if (!empty($result)) {
-            foreach ($result as $r) {
-                $this->CI->session->set_userdata($r->variable, $r->value);
-            }
-        }
-    }
-
-    /**
      * Generate Bearer Token
      * 
      * @param object $user
@@ -203,47 +188,5 @@ class Authenticated
     public function signOut() {
         $this->CI->session->sess_destroy();
         return;
-    }
-
-    /**
-     * Determine if the active user belongs to a specific role.
-     * 
-     * @param string|string[] $roles
-     * @return bool
-     */
-    public function is($roles) {
-        if (!$this->CI->session->has_userdata('my_roles')) {
-            return false;
-        }
-
-        foreach ((array) $roles as $r) {
-            // If the user has one of the roles, return true
-            if (in_array($r, $this->CI->session->userdata('my_roles'))) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Determine if the active user can perform action based on their permissions.
-     * 
-     * @param string|string[] $permissions
-     * @return bool
-     */
-    public function can($permissions) {
-        if (!$this->CI->session->has_userdata('my_permissions')) {
-            return false;
-        }
-
-        foreach ((array) $permissions as $p) {
-            // If the user has one of the permissions, return true
-            if (in_array($p, $this->CI->session->userdata('my_permissions'))) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

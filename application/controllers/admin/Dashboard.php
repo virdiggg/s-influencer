@@ -10,7 +10,7 @@ Class Dashboard extends CI_Controller {
     }
 
     public function index() {
-        if (getSession('role') !== 'admin') {
+        if (getSession('role') === 'USER') {
             return redirect('/');
         }
         $data = [

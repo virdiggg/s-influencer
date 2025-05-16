@@ -92,7 +92,7 @@
                         } else {
                             message.innerHTML = `<label class="text-success">Redirecting...</label>`;
                             setTimeout(function() {
-                                window.location.url = initURL + 'admin';
+                                window.location.replace(initURL + 'admin');
                             }, 1000);
                         }
                     })
