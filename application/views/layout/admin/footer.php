@@ -8,7 +8,7 @@
     $(document).ready(function() {
     });
 </script>
-<?php if (isset($js) && count($js) > 0) :
+<?php if (isset($js) && count((array) $js) > 0) :
     foreach ((array) $js as $j) :
         require_once(SCRIPT_PATH . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $j));
     endforeach;

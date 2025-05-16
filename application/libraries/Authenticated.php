@@ -183,6 +183,19 @@ class Authenticated
     }
 
     /**
+     * Verify if user has session
+     * 
+     * @return void|redirect
+     */
+    public function checkAuthAdmin() {
+        if ($this->isAuthenticated() === false) {
+            return redirect('admin/auth');
+        }
+
+        return;
+    }
+
+    /**
      * Sign out and destroy session
      * 
      * @return void

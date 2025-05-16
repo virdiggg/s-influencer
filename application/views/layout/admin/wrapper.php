@@ -1,12 +1,6 @@
 <?php
 
-$this->authenticated->checkAuth();
-$this->load->helper('arr');
-
-$navs = $this->navs->get();
-$rules = $this->rules->get(sess('username'));
-$roles = $rules['roles'];
-$permissions = $rules['permissions'];
+$this->authenticated->checkAuthAdmin();
 
 require_once(VIEW_PATH . 'header.php');
 require_once(VIEW_PATH . 'head.php');

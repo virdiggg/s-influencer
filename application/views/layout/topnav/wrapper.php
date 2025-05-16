@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex,nofollow" />
     <meta http-equiv="Cache-Control" content="max-age=86400" />
-    <meta http-equiv="Cache-Control" content="max-age=86400" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="icon" href="<?= base_url('assets/img/xyz.png') ?>" />
     <link rel="apple-touch-icon" href="<?= base_url('assets/img/xyz.png') ?>" />
