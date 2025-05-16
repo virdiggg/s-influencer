@@ -17,7 +17,7 @@ Class Influencer extends CI_Controller {
             return;
         }
 
-        // From input hidden, just name it ID
+        // From input hidden, just name it ID for simplicity
         $this->form_validation->set_rules('influencer_id', 'ID', 'required|trim');
         $this->form_validation->set_rules('username_instagram', 'ID', 'required|trim');
         $this->form_validation->set_rules('followers', 'ID', 'required|trim');
@@ -63,6 +63,29 @@ Class Influencer extends CI_Controller {
             'statusCode' => 201,
             'message' => 'Successfully saved data',
         ]);
+        return;
+    }
+
+    public function requests() {
+        if (!$this->authenticated->isAuthenticated()) {
+            http_response_code(401);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 401,
+                'message' => 'Unauthorized',
+            ]);
+            return;
+        }
+
+        $this->load->model('M_Influencer_request', 'ir', TRUE);
+
+        $return = [
+            'status' => TRUE,
+            'statusCode' => 200,
+            'message' => 'Records found',
+            'data' => $this->ir->getToDoList(),
+        ];
+        echo json_encode($return);
         return;
     }
 }

@@ -116,7 +116,7 @@
 
                         html += `<div class="row align-items-center mb-2 dynamic-row">`;
 
-                        html += `<div class="col-1"><input type="checkbox" class="icheck" /></div>`;
+                        html += `<div class="col-1"><!-- <input type="checkbox" class="icheck" /> --></div>`;
                         html += `<div class="col-4">
                             <div class="d-flex align-items-center w-100">
                                 <div>

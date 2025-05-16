@@ -8,7 +8,7 @@ Class M_Master extends CI_model {
 
     private $primary = "id";
 
-    private $exceptions = ["created_by", "created_at", "updated_by", "updated_at", "password"];
+    private $exceptions = ["created_by", "created_at", "updated_by", "updated_at"];
 
     public function __construct() {
         parent::__construct();
@@ -18,7 +18,7 @@ Class M_Master extends CI_model {
         $this->db->select("id, name");
         $this->db->from($this->categories);
 
-        $this->db->order_by('id', 'ASC');
+        $this->db->order_by($this->primary, 'ASC');
         $this->db->order_by('name', 'ASC');
         return $this->db->get()->result();
     }
@@ -27,7 +27,7 @@ Class M_Master extends CI_model {
         $this->db->select("id, name");
         $this->db->from($this->areas);
 
-        $this->db->order_by('id', 'ASC');
+        $this->db->order_by($this->primary, 'ASC');
         $this->db->order_by('name', 'ASC');
         return $this->db->get()->result();
     }

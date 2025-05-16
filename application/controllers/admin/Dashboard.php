@@ -1,11 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 Class Dashboard extends CI_Controller {
-    /**
-     * Page title.
-     * 
-     * @param string $title
-     */
     private $title;
 
     public function __construct() {
@@ -14,16 +9,8 @@ Class Dashboard extends CI_Controller {
         $this->authenticated->checkAuth();
     }
 
-    /**
-     * Index page.
-     * 
-     * @return view
-     */
     public function index() {
-        $this->load->model('M_Influencer_request', 'ir', TRUE);
-
         $data = [
-            'toDoList' => $this->ir->getToDoList(),
             'title' => $this->title,
             'view' => 'admin/dashboard/index',
             'js' => [
@@ -33,23 +20,4 @@ Class Dashboard extends CI_Controller {
 
         return $this->load->view('layout/admin/wrapper', $data);
     }
-
-    /**
-     * Function for datatables.
-     * 
-     * @return string JSON
-     */
-    public function toDoList() {
-        $this->load->model('M_Influencer_request', 'ir', TRUE);
-
-        $return = [
-            'status' => TRUE,
-            'statusCode' => 200,
-            'message' => 'Records found',
-            'data' => $this->ir->getToDoList(),
-        ];
-        echo json_encode($return);
-        return;
-    }
-
 }

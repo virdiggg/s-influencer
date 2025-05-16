@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-8 d-none d-md-block">
         <div class="card">
-            <div class="card-body">
+            <div class="card-body text-center">
                 <img src="<?= base_url('assets/img/xyz.png') ?>" alt="<?= getSession('username') ?>" class="img-fluid" />
             </div>
         </div>
@@ -11,24 +11,7 @@
             <div class="card-header">
                 <h3 class="card-title">To Do List</h3>
             </div>
-            <div class="card-body" id="to-do-list-body">
-                <?php foreach($toDoList as $index => $r): ?>
-                    <div class="row">
-                        <div class="col-2"><?= $index + 1 ?></div>
-                        <div class="col-8"><?= $r->username_instagram ?> - Approve Influencer Request</div>
-                        <div class="col-2">
-                            <button class="btn btn-sm btn-link text-success" onclick="approveInfluencerRequest('<?= $r->id ?>')"
-                                data-note="<?= $r->note ?>"
-                                data-username_instagram="<?= $r->username_instagram ?>"
-                                data-followers="<?= $r->followers ?>"
-                                data-engagement_rate="<?= $r->engagement_rate ?>"
-                                data-name="<?= $r->name ?>">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
+            <div class="card-body" id="to-do-list-body"></div>
         </div>
     </div>
 </div>

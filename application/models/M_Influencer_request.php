@@ -105,21 +105,23 @@ Class M_Influencer_request extends CI_model {
     }
 
     public function queryDatatables($length = 10, $start = 0, $search = NULL) {
-        $this->db->select();
+        $this->db->select('id, influencer_id, name, username_instagram, followers,
+            engagement_rate, note, created_by, created_at');
+        $this->db->select("(CASE WHEN approved_by IS NULL THEN 'Pending' ELSE 'Approved' END) AS status");
         $this->db->from($this->table);
+
         if (!empty($search)) {
-            // Your LIKE query.
-            // $search = strtolower($search);
-            // $this->db->group_start();
-            //     $this->db->like('LOWER(name)', $search);
-            //     $this->db->or_like('LOWER(phone)', $search);
-            // $this->db->group_end();
+            $this->db->group_start();
+                $this->db->like('LOWER(name)', $search);
+                $this->db->or_like('LOWER(username_instagram)', $search);
+            $this->db->group_end();
         }
+
         $this->db->limit($length, $start);
+        $this->db->order_by('created_at', 'DESC');
         $query = $this->db->get();
         $result = $query->result();
 
-        // Free up memory
         $query->free_result();
         $this->db->close();
 

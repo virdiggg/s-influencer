@@ -26,13 +26,13 @@
             <link rel="stylesheet" href="<?= base_url('assets/' . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $c)) ?>" />
         <?php endforeach;
     endif; ?>
+    <script type="text/javascript">
+        const initURL = "<?= base_url('/') ?>";
+    </script>
     <style>
         .dropdown-item-card {
             background: #fff !important;
             color: #212529 !important;
-        }
-        .toast-top-right {
-            margin-top: 30px;
         }
     </style>
 </head>
