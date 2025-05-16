@@ -11,11 +11,14 @@
     <link rel="icon" href="<?= base_url('assets/img/xyz.png') ?>" />
     <link rel="apple-touch-icon" href="<?= base_url('assets/img/xyz.png') ?>" />
 
-    <link rel="stylesheet" href="<?= base_url('assets/dist/css/adminlte.min.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('assets/css/adminlte.min.css') ?>" />
     <link rel="preload" href="<?= base_url('assets/vendor/fontawesome-free/css/all.min.css'); ?>" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript>
         <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome-free/css/all.min.css'); ?>" />
     </noscript>
+    <script type="text/javascript" src="<?= base_url('assets/js/jquery-3.7.1.min.js') ?>"></script>
+    <script type="text/javascript" src="<?= base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
+    <script type="text/javascript" src="<?= base_url('assets/js/adminlte.min.js') ?>"></script>
 </head>
 
 <body class="hold-transition login-page">
@@ -32,7 +35,7 @@
                     <p class="login-box-msg">Sign in to start your session</p>
                     <p class="login-box-msg" id="message">&nbsp;</p>
 
-                    <form method="POST" id="form-authentication">
+                    <form method="POST" id="form-auth">
                         <div class="input-group input-group-sm mb-3">
                             <input type="text" name="username" id="username" class="form-control" placeholder="Username" required />
                             <span class="input-group-append">
@@ -50,7 +53,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <button type="submit" class="btn btn-success btn-block" id="btn-submit">Sign In</button>
+                            <button type="submit" class="btn btn-success btn-block" id="btn-auth">Sign In</button>
                         </div>
                     </form>
                 <?php else : ?>
@@ -64,61 +67,41 @@
 
     <div class="row mt-3">
         <div class="col-12 text-center"></div>
-        </div>
     </div>
     <!-- /.login-box -->
 
-    <script type="text/javascript" src="<?= base_url('assets/vendor/jquery/jquery.min.js') ?>" integrity="sha384-DBJq/Y18IQJ1riVfkhcolvypPCF0HRFb9iPENNqi7hGVqU1UnHI1Rg7BoDq0rsGz"></script>
-    <script type="text/javascript" src="<?= base_url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') ?>" async integrity="sha384-wPHSRWD7CzenRbkOw0nXYdiy6NVou2K3PabAcM2hjpUmTFJZ4h7x9Y5mMg7h4tEx"></script>
-    <script type="text/javascript" src="<?= base_url('assets/dist/js/adminlte.min.js') ?>" async integrity="sha384-NP0RCTs/5tFIz7e6+PL2ZW3XrgIauqi4AgwPRyL/P3dNhV5dqGclf3xbeuFYsCND"></script>
     <script type="text/javascript">
-        $(document).ready(function() {
-            $('#form-authentication').submit(function(e) {
+        const initURL = "<?= base_url('/') ?>";
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('form-auth').addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                let username = $('#username').val();
-                let password = $('#password').val();
-                let postData = new FormData(this);
-                postData.append('username', username);
-                postData.append('password', password);
+                let btn = document.getElementById('btn-auth');
+                let message = document.getElementById('message');
+                message.innerHTML = '';
+                btn.disabled = true;
 
-                $.ajax({
-                    type: "POST",
-                    url: "<?= base_url('auth/sign-in') ?>",
-                    data: postData,
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    dataType: "JSON",
-                    beforeSend: function() {
-                        $('#btn-submit').html('<i id="spinn" class="fa fa-spinner fa-spin fa-fw"></i><span class="sr-only"> LOADING...</span>')
-                        $('#btn-submit').attr('disabled', '');
-                        $('.form-control').attr('disabled', '');
-                        $('#message').html('&nbsp;');
-                    },
-                    success: function(response) {
+                fetch(initURL + 'auth/signIn', {
+                        method: 'POST',
+                        body: new FormData(this)
+                    })
+                    .then(response => response.json())
+                    .then(response => {
                         if (response.status === false) {
-                            $('#btn-submit').html('Sign In');
+                            message.innerHTML = `<label class="text-danger">${response.message}</label>`;
+                        } else {
+                            message.innerHTML = `<label class="text-success">Redirecting...</label>`;
+                            setTimeout(function() {
+                                window.location.url = initURL + 'admin';
+                            }, 1000);
                         }
-
-                        $('#message').html(`<label class="text-success">Redirecting...</label>`);
-
-                        setTimeout(function() {
-                            window.location.href = response.url;
-                            $('#btn-submit').removeAttr('disabled');
-                            $('.form-control').removeAttr('disabled');
-                        }, 1000);
-                    },
-                    error: function(response) {
-                        $('#btn-submit').removeAttr('disabled');
-                        $('.form-control').removeAttr('disabled');
-                        $('#btn-submit').html('Sign In');
-                        $('#password').val('');
-
-                        let data = JSON.parse(response.responseText);
-                        $('#message').html(`<label class="text-danger">${data.message}</label>`);
-                    }
-                });
+                    })
+                    .catch(error => {
+                        // console.error('Error:', error);
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                    });
             });
         });
     </script>

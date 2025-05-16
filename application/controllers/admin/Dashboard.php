@@ -6,13 +6,12 @@ Class Dashboard extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->title = 'Dashboard';
-        $this->authenticated->checkAuth();
+        $this->authenticated->checkAuthAdmin();
     }
 
     public function index() {
-        dd($_SESSION);
         if (getSession('role') !== 'admin') {
-            return redirect('home');
+            return redirect('/');
         }
         $data = [
             'title' => $this->title,
