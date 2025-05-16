@@ -18,7 +18,7 @@ require_once(VIEW_PATH . 'sidebar.php');
                 <h3><i class="fas fa-exclamation-triangle text-warning"></i> Oops! Page not found.</h3>
                 <p>
                     We could not find the page you were looking for.
-                    Meanwhile, you may <a href="<?= base_url('admin/dashboard') ?>">return to dashboard</a>.
+                    Meanwhile, you may <a href="<?= base_url('admin') ?>">return to dashboard</a>.
                 </p>
             </div>
 

@@ -14,15 +14,9 @@
                 <!-- Add icons to the links using the .nav-icon class
                 with font-awesome or any other icon font library -->
                 <li class="nav-item">
-                    <a href="<?= base_url('admin/dashboard') ?>" class="nav-link <?= isMenuActive(base_url('admin/dashboard')) ?>">
+                    <a href="<?= base_url('admin') ?>" class="nav-link <?= isMenuActive(base_url('admin')) ?>">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="<?= base_url('auth/password/change') ?>" class="nav-link <?= isMenuActive(base_url('auth/password/change')) ?>">
-                        <i class="nav-icon fas fas fa-lock"></i>
-                        <p>Ubah Password</p>
                     </a>
                 </li>
                 <li class="nav-item">

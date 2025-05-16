@@ -57,3 +57,4 @@ $route['translate_uri_dashes'] = FALSE;
 $route['storage']['GET'] = 'api/Storage/index';
 
 // Your custom routes here
+$route['admin']['GET'] = 'admin/dashboard/index';

@@ -29,6 +29,7 @@ Class Migration_Seeder_users extends CI_Migration {
             'updated_by' => 'superadmin',
             'updated_at' => $date,
             'phone' => '0',
+            'role' => 'SUPER ADMIN',
         ];
         $param[] = [ //2
             'username' => 'admin',
@@ -39,6 +40,7 @@ Class Migration_Seeder_users extends CI_Migration {
             'updated_by' => 'superadmin',
             'updated_at' => $date,
             'phone' => '0',
+            'role' => 'ADMIN',
         ];
         $param[] = [ //3
             'username' => 'user',
@@ -49,6 +51,7 @@ Class Migration_Seeder_users extends CI_Migration {
             'updated_by' => 'superadmin',
             'updated_at' => $date,
             'phone' => '0',
+            'role' => 'USER',
         ];
         $this->db->insert_batch($this->name, $param);
     }

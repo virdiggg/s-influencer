@@ -10,6 +10,10 @@ Class Dashboard extends CI_Controller {
     }
 
     public function index() {
+        dd($_SESSION);
+        if (getSession('role') !== 'admin') {
+            return redirect('home');
+        }
         $data = [
             'title' => $this->title,
             'view' => 'admin/dashboard/index',

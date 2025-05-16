@@ -63,6 +63,10 @@ Class Migration_Create_users_Ionj extends CI_Migration {
                 'type' => 'TIMESTAMP',
                 'null' => TRUE,
             ],
+            'role' => [
+                'type' => 'VARCHAR',
+                'constraint' => 50,
+            ],
             'is_active' => [
                 'type' => 'BOOL',
                 'default' => TRUE,
