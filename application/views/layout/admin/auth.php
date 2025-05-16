@@ -23,7 +23,9 @@
         <!-- /.login-logo -->
         <div class="card card-outline card-success">
             <div class="card-header text-center">
-                <a href="<?= base_url('admin/dashboard') ?>" class="h1"><b><?= getConfig('app_name_min') ?></b></a>
+                <a href="<?= base_url('admin/dashboard') ?>">
+                    <img src="<?= base_url('assets/img/xyz.png') ?>" alt="xyz" class="img-fluid" />
+                </a>
             </div>
             <div class="card-body">
                 <?php if ($this->authenticated->isAuthenticated() === false) : ?>

@@ -15,7 +15,7 @@
                 with font-awesome or any other icon font library -->
                 <li class="nav-item">
                     <a href="<?= base_url('admin/dashboard') ?>" class="nav-link <?= isMenuActive(base_url('admin/dashboard')) ?>">
-                        <i class="nav-icon <?= $nav['icon'] ?>"></i>
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>

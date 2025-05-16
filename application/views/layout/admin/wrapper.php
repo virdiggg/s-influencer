@@ -2,9 +2,9 @@
 
 $this->authenticated->checkAuthAdmin();
 
-require_once(VIEW_PATH . 'header.php');
-require_once(VIEW_PATH . 'head.php');
-require_once(VIEW_PATH . 'sidebar.php');
-require_once(VIEW_PATH . 'content.php');
-require_once(VIEW_PATH . 'foot.php');
-require_once(VIEW_PATH . 'footer.php');
+require_once(LAYOUT_PATH . 'admin' . DIRECTORY_SEPARATOR . 'header.php');
+require_once(LAYOUT_PATH . 'admin' . DIRECTORY_SEPARATOR . 'head.php');
+require_once(LAYOUT_PATH . 'admin' . DIRECTORY_SEPARATOR . 'sidebar.php');
+require_once(LAYOUT_PATH . 'admin' . DIRECTORY_SEPARATOR . 'content.php');
+require_once(LAYOUT_PATH . 'admin' . DIRECTORY_SEPARATOR . 'foot.php');
+require_once(LAYOUT_PATH . 'admin' . DIRECTORY_SEPARATOR . 'footer.php');

@@ -39,7 +39,6 @@ Class Auth extends CI_Controller {
 
     public function signOut() {
         $this->authenticated->signOut();
-        $this->load->helper('permission');
         return redirectBack();
     }
 }

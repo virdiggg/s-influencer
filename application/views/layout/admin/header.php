@@ -11,15 +11,15 @@
     <link rel="icon" href="<?= base_url('assets/img/xyz.png') ?>" />
     <link rel="apple-touch-icon" href="<?= base_url('assets/img/xyz.png') ?>" />
 
-    <link rel="stylesheet" href="<?= base_url('assets/dist/css/adminlte.min.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('assets/css/adminlte.min.css') ?>" />
     <link rel="preload" href="<?= base_url('assets/vendor/fontawesome-free/css/all.min.css'); ?>" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript>
         <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome-free/css/all.min.css'); ?>" />
     </noscript>
     <link rel="stylesheet" href="<?= base_url('assets/vendor/datatables-bs4/css/dataTables.bootstrap4.min.css') ?>" />
-    <link rel="preload" href="<?= base_url('assets/dist/css/custom.css'); ?>" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" href="<?= base_url('assets/css/custom.css'); ?>" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript>
-        <link rel="stylesheet" href="<?= base_url('assets/dist/css/custom.css'); ?>" />
+        <link rel="stylesheet" href="<?= base_url('assets/css/custom.css'); ?>" />
     </noscript>
     <?php if (isset($css) && count((array) $css) > 0):
         foreach((array) $css as $c): ?>
