@@ -272,7 +272,7 @@
         history.pushState(null, '', newUrl);
     }
 
-    $('#btn-show').on('click', function(e) {
+    document.getElementById('btn-show').addEventListener('click', function (e) {
         e.preventDefault();
         startCounting = 0;
         states.loadMore = false;

@@ -103,8 +103,8 @@ Class Master extends CI_Controller {
             'statusCode' => 200,
             'message' => 'Data ditemukan',
             'data' => $result['data'],
-            'totalRecords' => $result['totalRecords'],
-            'totalRecordsFiltered' => $result['totalRecords'],
+            'totalRecords' => count($result['data']),
+            'nextRecords' => $result['totalRecords'],
         ]);
         return;
     }
