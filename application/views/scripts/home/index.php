@@ -60,16 +60,16 @@
             });
         }
 
-        window.addEventListener('scroll', () => {
-            // console.log(window.scrollY) //scrolled from top
-            // console.log(window.innerHeight) //visible part of screen
-            if ((window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight) {
-                if (parseInt(startCounting) % 10 === 0) {
-                    states.loadMore = true;
-                    datatables();
-                }
-            }
-        })
+        // window.addEventListener('scroll', () => {
+        //     // console.log(window.scrollY) //scrolled from top
+        //     // console.log(window.innerHeight) //visible part of screen
+        //     if ((window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight) {
+        //         if (parseInt(startCounting) % 10 === 0) {
+        //             states.loadMore = true;
+        //             datatables();
+        //         }
+        //     }
+        // });
     });
 
     datatables = () => {
@@ -172,14 +172,20 @@
                     container.insertBefore(fragment, nextSibling);
                 }
 
-                if (response.data.length == 10) {
-                    const cardFooter = document.getElementById('card-footer');
+                const cardFooter = document.getElementById('card-footer');
 
+                if (response.data.length == 10) {
                     if (!cardFooter.querySelector('#btn-load-more')) {
                         const html = `<div class="col-12 text-center">
-                            <button class="btn btn-primary" id="btn-load-more">Load More</button>
+                            <button class="btn btn-outline-success" id="btn-load-more">Load More</button>
                         </div>`;
                         cardFooter.insertAdjacentHTML('beforeend', html);
+                    } else {
+                        document.getElementById('btn-load-more').classList.remove('d-none');
+                    }
+                } else {
+                    if (cardFooter.querySelector('#btn-load-more')) {
+                        document.getElementById('btn-load-more').classList.add('d-none');
                     }
                 }
 
