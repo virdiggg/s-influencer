@@ -32,17 +32,7 @@ Class M_Master extends CI_model {
         return $this->db->get()->result();
     }
 
-    /**
-     * Datatables.
-     * 
-     * @param string|int   $length
-     * @param string|int   $start
-     * @param string|array $filters
-     * 
-     * @return array
-     */
     public function datatables($length = 10, $start = 0, $filters = []) {
-        
         $result = $this->influencers($length, $start, $filters);
         $countResult = count($result);
 
@@ -148,14 +138,6 @@ Class M_Master extends CI_model {
         return $this->db->get()->result();
     }
 
-    /**
-     * Parse datatables.
-     * 
-     * @param array      $length
-     * @param string|int $start
-     * 
-     * @return array
-     */
     public function parse($result, $start = 0) {
         foreach ($result as $r) {
             $start++;

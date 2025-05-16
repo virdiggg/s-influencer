@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    $('#form-auth').submit(function(e) {
+    document.getElementById('form-auth').addEventListener('submit', function(e) {
         e.preventDefault();
 
         let btn = document.getElementById('btn-auth');
