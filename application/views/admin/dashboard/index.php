@@ -29,6 +29,7 @@
                 <div class="form-group">
                     <label for="name">Name</label>
                     <input type="text" class="form-control" placeholder="Name" name="name" id="name" readonly />
+                    <input type="hidden" name="id" id="row_id" required />
                 </div>
                 <div class="form-group">
                     <label for="username_instagram">Username Instagram</label>
@@ -46,6 +47,7 @@
                     <label for="note">Note</label>
                     <textarea class="form-control" rows="3" placeholder="Note" name="note" id="note" readonly></textarea>
                 </div>
+                <div class="text-danger" id="message"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn border-secondary" data-dismiss="modal">Close</button>

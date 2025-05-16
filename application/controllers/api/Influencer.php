@@ -88,4 +88,55 @@ Class Influencer extends CI_Controller {
         echo json_encode($return);
         return;
     }
+
+    public function approve() {
+        if (!$this->authenticated->isAuthenticated()) {
+            http_response_code(401);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 401,
+                'message' => 'Unauthorized',
+            ]);
+            return;
+        }
+
+        // From input hidden, just name it ID for simplicity
+        $this->form_validation->set_rules('id', 'ID', 'required|trim');
+
+        if ($this->form_validation->run() === FALSE) {
+            http_response_code(422);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 422,
+                'message' => validation_errors(),
+            ]);
+            return;
+        }
+
+        $this->load->model('M_Influencer_request', 'ir', TRUE);
+
+        $id = sanitizeString($this->input->post('id'));
+        $result = $this->ir->update($id, [
+            'approved_by' => getSession('username'),
+            'approved_at' => getMicroTimeDateTime(),
+        ]);
+
+        if (!$result) {
+            http_response_code(500);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 500,
+                'message' => 'Failed to update data',
+            ]);
+            return;
+        }
+
+        http_response_code(201);
+        echo json_encode([
+            'status' => TRUE,
+            'statusCode' => 201,
+            'message' => 'Successfully updated data',
+        ]);
+        return;
+    }
 }

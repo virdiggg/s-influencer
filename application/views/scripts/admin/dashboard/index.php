@@ -8,13 +8,14 @@
         const followers = e.dataset.followers;
         const engagementRate = e.dataset.engagement_rate;
         const name = e.dataset.name;
+        const note = e.dataset.note;
 
-        document.getElementById('influencer_id').value = id;
-        document.getElementById('submit-username_instagram').value = usernameInstagram;
-        document.getElementById('submit-followers').value = followers;
-        document.getElementById('submit-engagement_rate').value = engagementRate;
-        document.getElementById('submit-name').value = name;
-        document.getElementById('note').value = '';
+        document.getElementById('row_id').value = id;
+        document.getElementById('username_instagram').value = usernameInstagram;
+        document.getElementById('followers').value = followers;
+        document.getElementById('engagement_rate').value = engagementRate;
+        document.getElementById('name').value = name;
+        document.getElementById('note').value = note;
 
         $('#approveRequestModal').modal('show');
     }
@@ -38,7 +39,6 @@
                 } else {
                     $('#approveRequestModal').modal('hide');
                     showToast(response.message);
-                    states.loadMore = false;
                     datatables();
                 }
             })
@@ -69,7 +69,8 @@
 
                             html += `<div class="col-2">${index + 1}</div>`;
                             html += `<div class="col-8"><strong>${val.username_instagram}</strong> - Approve Influencer Request</div>`;
-                            html += `<div class="col-2"><button class="btn btn-sm btn-link text-success" onclick="openNote(this, ${val.id})"
+                            html += `<div class="col-2"><button class="btn btn-sm btn-link text-success" title="Approve"
+                                onclick="openNote(this, ${val.id})"
                                 data-note="${val.note}"
                                 data-username_instagram="${val.username_instagram}"
                                 data-followers="${val.followers}"
