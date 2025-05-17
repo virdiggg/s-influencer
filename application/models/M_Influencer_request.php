@@ -25,17 +25,33 @@ Class M_Influencer_request extends CI_model {
     }
 
     public function create($param) {
-        $var = $val = [];
-        foreach ($param as $key => $p) {
-            $var[] = '"' . $key . '"';
-            $val[] = !is_null($p) ? $this->db->escape($p) : "NULL";
-        }
+        // PostgreSQL
+        // $var = $val = [];
+        // foreach ($param as $key => $p) {
+        //     $var[] = '"' . $key . '"';
+        //     $val[] = !is_null($p) ? $this->db->escape($p) : "NULL";
+        // }
 
-        $var[] = 'created_at, created_by, updated_at, updated_by';
-        $val[] = "NOW(), '" . getSession('username') . "', NOW(), '" . getSession('username') . "'";
+        // $var[] = 'created_at, created_by, updated_at, updated_by';
+        // $val[] = "NOW(), '" . getSession('username') . "', NOW(), '" . getSession('username') . "'";
 
-        $query = "INSERT INTO \"{$this->table}\" (" . join(', ', $var) . ") VALUES (" . join(', ', $val) . ") RETURNING *;";
-        return $this->db->query($query)->row();
+        // $query = "INSERT INTO \"{$this->table}\" (" . join(', ', $var) . ") VALUES (" . join(', ', $val) . ") RETURNING *;";
+        // return $this->db->query($query)->row();
+        // $this->db->where($this->primary, $id);
+        // $this->db->update($this->table, $param);
+        // return $this->find($id);
+
+        // MySQL
+        $date = date("Y-m-d H:i:s");
+        $username = getSession("username");
+        $param = array_merge($param, [
+            "created_at" => $date,
+            "created_by" => $username,
+            "updated_at" => $date,
+            "updated_by" => $username,
+        ]);
+        $this->db->insert($this->table, $param);
+        return $this->find($this->db->insert_id());
     }
 
     public function update($id, $param) {
@@ -43,30 +59,44 @@ Class M_Influencer_request extends CI_model {
             return null;
         }
 
-        $values = [];
-        foreach ($param as $key => $p) {
-            $val = !is_null($p) ? $this->db->escape($p) : "NULL";
-            $values[] = '"' . $key . '" = ' . $val;
-        }
+        // PostgreSQL
+        // $values = [];
+        // foreach ($param as $key => $p) {
+        //     $val = !is_null($p) ? $this->db->escape($p) : "NULL";
+        //     $values[] = '"' . $key . '" = ' . $val;
+        // }
 
-        $values[] = "updated_at = NOW(), updated_by = '" . getSession('username') . "'";
+        // $values[] = "updated_at = NOW(), updated_by = '" . getSession('username') . "'";
 
-        $set = join(", ", $values);
+        // $set = join(", ", $values);
 
-        $tmpWhere = [];
-        $tmpWhere[] = "\"{$this->primary}\" = " . $this->db->escape($id);
+        // $tmpWhere = [];
+        // $tmpWhere[] = "\"{$this->primary}\" = " . $this->db->escape($id);
 
-        $where = "WHERE " . join(" AND ", $tmpWhere);
-        $query = "UPDATE \"{$this->table}\" SET {$set} {$where} RETURNING *;";
-        unset($tmpWhere, $values, $where);
-        return $this->db->query($query)->row();
+        // $where = "WHERE " . join(" AND ", $tmpWhere);
+        // $query = "UPDATE \"{$this->table}\" SET {$set} {$where} RETURNING *;";
+        // unset($tmpWhere, $values, $where);
+        // return $this->db->query($query)->row();
+
+        // MySQL
+        $param = array_merge($param, [
+            "updated_at" => date("Y-m-d H:i:s"),
+            "updated_by" => getSession("username"),
+        ]);
+        $this->db->where($this->primary, $id);
+        $this->db->update($this->table, $param);
+        return $this->find($id);
+    }
+
+    private function __find($where) {
+        $this->db->select();
+        $this->db->from($this->table);
+        $this->db->where($where);
+        return $this->db->get()->row();
     }
 
     public function find($id) {
-        $this->db->select();
-        $this->db->from($this->table);
-        $this->db->where($this->primary, $id);
-        return $this->db->get()->row();
+        return $this->__find([$this->primary => $id]);
     }
 
     public function datatables($length = 10, $start = 0, $search = NULL) {
