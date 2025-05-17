@@ -32,7 +32,7 @@
             </div>
             <div class="card-body">
                 <?php if ($this->authenticated->isAuthenticated() === false) : ?>
-                    <p class="login-box-msg">Influencer Information System</p>
+                    <p class="login-box-msg"><?= $this->config->item('app_name') ?></p>
                     <p class="login-box-msg" id="message">&nbsp;</p>
 
                     <form method="POST" id="form-auth">
