@@ -11,6 +11,13 @@
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </li>
+                <?php if (getSession('role') !== 'USER') : ?>
+                    <li class="nav-item">
+                        <a href="<?= base_url('admin') ?>" class="nav-link">
+                            <i class="fas fa-home"></i>
+                        </a>
+                    </li>
+                <?php endif; ?>
             <?php else: ?>
                 <li class="nav-item">
                     <a href="#" class="navbar-brand authorized-only">

@@ -13,6 +13,7 @@ Class Dashboard extends CI_Controller {
         if (getSession('role') === 'USER') {
             return redirect('/');
         }
+
         $data = [
             'title' => $this->title,
             'view' => 'admin/dashboard/index',
