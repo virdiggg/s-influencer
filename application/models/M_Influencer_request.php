@@ -5,8 +5,6 @@ Class M_Influencer_request extends CI_model {
 
     private $primary = "id";
 
-    private $exceptions = ["created_by", "created_at", "updated_by", "updated_at"];
-
     public function __construct() {
         parent::__construct();
     }
@@ -136,7 +134,8 @@ Class M_Influencer_request extends CI_model {
 
     public function queryDatatables($length = 10, $start = 0, $search = NULL) {
         $this->db->select('id, influencer_id, name, username_instagram, followers,
-            engagement_rate, note, created_by, created_at');
+            engagement_rate, note, created_by, created_at, approved_by, approved_at,
+            rejected_by, rejected_at');
         $this->db->select("(CASE WHEN approved_by IS NULL THEN 'Pending' ELSE 'Approved' END) AS status");
         $this->db->from($this->table);
 
@@ -147,6 +146,11 @@ Class M_Influencer_request extends CI_model {
             $this->db->group_end();
         }
 
+        $this->db->group_start();
+            $this->db->where('deleted_by IS NULL');
+            $this->db->where('deleted_at IS NULL');
+        $this->db->group_end();
+
         $this->db->limit($length, $start);
         $this->db->order_by('created_at', 'DESC');
         $query = $this->db->get();
@@ -156,5 +160,26 @@ Class M_Influencer_request extends CI_model {
         $this->db->close();
 
         return $result;
+    }
+
+    public function approve($id) {
+        return $this->update($id, [
+            'approved_by' => getSession('username'),
+            'approved_at' => getMicroTimeDateTime(),
+        ]);
+    }
+
+    public function reject($id) {
+        return $this->update($id, [
+            'rejected_by' => getSession('username'),
+            'rejected_at' => getMicroTimeDateTime(),
+        ]);
+    }
+
+    public function destroy($id) {
+        return $this->update($id, [
+            'deleted_by' => getSession('username'),
+            'deleted_at' => getMicroTimeDateTime(),
+        ]);
     }
 }

@@ -8,8 +8,6 @@ Class M_Master extends CI_model {
 
     private $primary = "id";
 
-    private $exceptions = ["created_by", "created_at", "updated_by", "updated_at"];
-
     public function __construct() {
         parent::__construct();
     }
