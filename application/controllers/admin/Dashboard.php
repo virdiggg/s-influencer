@@ -5,7 +5,7 @@ Class Dashboard extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->title = 'Dashboard';
+        $this->title = $this->config->item('app_name');
         $this->authenticated->checkAuthAdmin();
     }
 
