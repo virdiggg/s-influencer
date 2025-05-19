@@ -90,6 +90,10 @@ Class Migration_Create_influencer_requests_19cS extends CI_Migration {
                 'type' => 'TIMESTAMP',
                 'null' => TRUE,
             ],
+            'reject_note' => [
+                'type' => 'TEXT',
+                'null' => TRUE,
+            ],
             'deleted_by' => [
                 'type' => 'VARCHAR',
                 'constraint' => 50,

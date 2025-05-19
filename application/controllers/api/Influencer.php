@@ -61,7 +61,7 @@ Class Influencer extends CI_Controller {
         echo json_encode([
             'status' => TRUE,
             'statusCode' => 201,
-            'message' => 'Successfully saved data',
+            'message' => 'Data has been saved',
         ]);
         return;
     }
@@ -123,7 +123,7 @@ Class Influencer extends CI_Controller {
             echo json_encode([
                 'status' => FALSE,
                 'statusCode' => 500,
-                'message' => 'Failed to update data',
+                'message' => 'Failed to approve the request',
             ]);
             return;
         }
@@ -132,7 +132,7 @@ Class Influencer extends CI_Controller {
         echo json_encode([
             'status' => TRUE,
             'statusCode' => 201,
-            'message' => 'Successfully updated data',
+            'message' => 'Request has been approved',
         ]);
         return;
     }
@@ -171,7 +171,7 @@ Class Influencer extends CI_Controller {
             echo json_encode([
                 'status' => FALSE,
                 'statusCode' => 500,
-                'message' => 'Failed to update data',
+                'message' => 'Failed to reject the request',
             ]);
             return;
         }
@@ -180,7 +180,7 @@ Class Influencer extends CI_Controller {
         echo json_encode([
             'status' => TRUE,
             'statusCode' => 201,
-            'message' => 'Successfully updated data',
+            'message' => 'Request has been rejected',
         ]);
         return;
     }
@@ -219,7 +219,7 @@ Class Influencer extends CI_Controller {
             echo json_encode([
                 'status' => FALSE,
                 'statusCode' => 500,
-                'message' => 'Failed to update data',
+                'message' => 'Failed to delete the request',
             ]);
             return;
         }
@@ -228,8 +228,43 @@ Class Influencer extends CI_Controller {
         echo json_encode([
             'status' => TRUE,
             'statusCode' => 201,
-            'message' => 'Successfully updated data',
+            'message' => 'Request has been deleted',
         ]);
+        return;
+    }
+
+    public function datatables() {
+        if (!$this->authenticated->isAuthenticated()) {
+            http_response_code(401);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 401,
+                'message' => 'Unauthorized',
+                'draw' => 1,
+                'iTotalRecords' => 0,
+                'iTotalDisplayRecords' => 0,
+                'aaData' => [],
+            ]);
+            return;
+        }
+
+        $this->load->model('M_Influencer_request', 'ir', TRUE);
+
+        $draw = $this->input->post('draw') ?: 1;
+        $length = $this->input->post('length') ?: 10;
+        $start = $this->input->post('start') ?: 0;
+        $search = $this->input->post('search') ? strtolower($this->input->post('search')) : null;
+        $result = $this->ir->datatables($length, $start, $search);
+        $return = [
+            'status' => TRUE,
+            'statusCode' => 200,
+            'draw' => intval($draw),
+            'iTotalRecords' => $result['totalRecords'],
+            'iTotalDisplayRecords' => $result['totalRecords'],
+            'aaData' => $result['data'],
+        ];
+
+        echo json_encode($return);
         return;
     }
 }

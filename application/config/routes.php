@@ -58,3 +58,4 @@ $route['storage']['GET'] = 'api/Storage/index';
 
 // Your custom routes here
 $route['admin']['GET'] = 'admin/dashboard/index';
+$route['my-request']['GET'] = 'home/myRequest';

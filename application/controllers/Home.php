@@ -1,11 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 Class Home extends CI_Controller {
-    /**
-     * Page title.
-     * 
-     * @param string $title
-     */
     private $title;
 
     public function __construct() {
@@ -13,11 +8,6 @@ Class Home extends CI_Controller {
         $this->title = 'Home';
     }
 
-    /**
-     * Index page.
-     * 
-     * @return view
-     */
     public function index() {
         $data = [
             'title' => $this->title,
@@ -25,6 +15,22 @@ Class Home extends CI_Controller {
             'js' => [
                 'home/auth.php',
                 'home/index.php',
+            ],
+        ];
+
+        return $this->load->view('layout/topnav/wrapper', $data);
+    }
+
+    public function myRequest() {
+        if (!getSession('role')) {
+            return redirect('/');
+        }
+
+        $data = [
+            'title' => $this->title,
+            'view' => 'home/request',
+            'js' => [
+                'home/request.php',
             ],
         ];
 

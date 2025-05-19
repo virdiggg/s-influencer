@@ -2,6 +2,10 @@
 
 Class M_Influencer_request extends CI_model {
     private $table = "influencer_requests";
+    private $areas = "ms_areas";
+    private $categories = "ms_categories";
+    private $influencers = "ms_influencers";
+    private $mapping = "influencer_mappings";
 
     private $primary = "id";
 
@@ -16,6 +20,10 @@ Class M_Influencer_request extends CI_model {
             ->group_start()
                 ->where('approved_by IS NULL')
                 ->where('approved_at IS NULL')
+            ->group_end()
+            ->group_start()
+                ->where('deleted_by IS NULL')
+                ->where('deleted_at IS NULL')
             ->group_end()
             ->order_by('created_at', 'DESC')
             ->limit(5)
@@ -123,20 +131,73 @@ Class M_Influencer_request extends CI_model {
     }
 
     public function parse($result, $start = 0) {
+        $isAdmin = getSession('role') === 'ADMIN';
+
         foreach ($result as $r) {
             $start++;
             $r->no = $start;
-            $r->action = '';
+            $approve = $reject = $delete = '';
+
+            if ($isAdmin) {
+                if ($r->approved_at === null) {
+                    $approve = '<button type="button" class="btn btn-sm btn-link text-success" onclick="openApprove(' . $r->id . ')"><i class="fas fa-check"></i></button>';
+                }
+
+                if ($r->rejected_at === null) {
+                    $reject = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openReject(' . $r->id . ')"><i class="fas fa-timex"></i></button>';
+                }
+            }
+
+            $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(' . $r->id . ')"><i class="fas fa-trash"></i></button>';
+
+            $r->influencer = "@{$r->username_instagram} - {$r->name}";
+            $r->areas = join(', ', array_column(json_decode($r->areas ?: '[]', true), 'area'));
+            $r->actions = $approve . $reject . $delete;
         }
 
         return $result;
     }
 
     public function queryDatatables($length = 10, $start = 0, $search = NULL) {
-        $this->db->select('id, influencer_id, name, username_instagram, followers,
+        $this->db->select("id, influencer_id, name, username_instagram, followers,
             engagement_rate, note, created_by, created_at, approved_by, approved_at,
-            rejected_by, rejected_at');
-        $this->db->select("(CASE WHEN approved_by IS NULL THEN 'Pending' ELSE 'Approved' END) AS status");
+            rejected_by, rejected_at, reject_note");
+        $this->db->select("(
+            CASE
+                WHEN rejected_by IS NOT NULL THEN 'Rejected'
+                WHEN approved_by IS NOT NULL THEN 'Approved'
+                ELSE 'New Request'
+            END
+        ) AS status");
+        // PostgreSQL
+        // $this->db->select("(
+        //     SELECT JSON_AGG(
+        //         JSON_BUILD_OBJECT(
+        //             'id', map.id,
+        //             'area_id', map.area_id,
+        //             'influencer_id', map.influencer_id,
+        //             'area', area.name
+        //         ) ORDER BY map.id
+        //     )
+        //     FROM {$this->mapping} map
+        //     JOIN {$this->areas} area ON area.id = map.area_id
+        //     WHERE map.influencer_id = inf.id
+        // ) AS areas");
+        // MySQL
+        $this->db->select("(
+            SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'id', map.id,
+                'area_id', map.area_id,
+                'influencer_id', map.influencer_id,
+                'area', area.name
+            )
+            )
+            FROM {$this->mapping} map
+            JOIN {$this->areas} area ON area.id = map.area_id
+            WHERE map.influencer_id = inf.id
+            ORDER BY map.id
+        ) AS areas");
         $this->db->from($this->table);
 
         if (!empty($search)) {

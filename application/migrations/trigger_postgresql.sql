@@ -38,3 +38,10 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_log_influencer_request_changes ON influencer_requests;
+
+CREATE TRIGGER trg_log_influencer_request_changes
+AFTER INSERT OR UPDATE ON influencer_requests
+FOR EACH ROW
+EXECUTE FUNCTION log_influencer_request_changes();
