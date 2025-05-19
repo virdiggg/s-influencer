@@ -20,7 +20,11 @@ Class M_Influencer_request extends CI_model {
             ->from($this->table)
             ->group_start()
                 ->where('approved_by IS NULL')
-                ->where('approved_at IS NULL')
+                ->or_where('approved_at IS NULL')
+            ->group_end()
+            ->group_start()
+                ->where('rejected_by IS NULL')
+                ->where('rejected_at IS NULL')
             ->group_end()
             ->group_start()
                 ->where('deleted_by IS NULL')
@@ -51,14 +55,14 @@ Class M_Influencer_request extends CI_model {
         // MySQL
         $date = date("Y-m-d H:i:s");
         $username = getSession("username");
-        $param = array_merge($param, [
+        $data = array_merge($param, [
             "created_at" => $date,
             "created_by" => $username,
             "updated_at" => $date,
             "updated_by" => $username,
         ]);
-        $this->db->insert($this->table, $param);
-        return $this->find($this->db->insert_id());
+        $this->db->insert($this->table, $data);
+        return $this->__find($data);
     }
 
     public function update($id, $param) {
@@ -140,26 +144,29 @@ Class M_Influencer_request extends CI_model {
             $approve = $reject = $delete = $log = '';
 
             if ($isAdmin) {
-                if ($r->approved_at === null) {
-                    $approve = '<button type="button" class="btn btn-sm btn-link text-success" onclick="openApprove(' . $r->id . ')"><i class="fas fa-check"></i></button>';
-                }
-
-                if ($r->rejected_at === null) {
-                    $reject = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openReject(' . $r->id . ')"><i class="fas fa-timex"></i></button>';
+                if ($r->rejected_at === null && $r->approved_at === null) {
+                    $approve = '<button type="button" class="btn btn-sm btn-link text-success" onclick="openApprove(this, ' . $r->id . ')"
+                        data-note="' . $r->note . '" data-username_instagram="' . $r->username_instagram . '"
+                        data-followers="' . $r->followers . '" data-engagement_rate="' . $r->engagement_rate . '"
+                        data-name="' . $r->name . '">
+                        <i class="fas fa-check"></i></button>';
+                    $reject = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openReject(this, ' . $r->id . ')"
+                        data-note="' . $r->note . '" data-username_instagram="' . $r->username_instagram . '"
+                        data-followers="' . $r->followers . '" data-engagement_rate="' . $r->engagement_rate . '"
+                        data-name="' . $r->name . '">
+                        <i class="fas fa-times"></i></button>';
                 }
             } else {
-                if (!$r->rejected_at && !$r->approved_at) {
-                    $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(' . $r->id . ')"><i class="fas fa-trash"></i></button>';
-                }
+                $log = '<button type="button" class="btn btn-sm btn-link text-secondary" onclick="openLog(this, ' . $r->id . ', &apos;' . $r->username_instagram . '&apos;)"><i class="fas fa-eye"></i></button>';
 
-                if ($r->rejected_at) {
-                    $log = '<button type="button" class="btn btn-sm btn-link text-secondary" onclick="openLog(' . $r->id . ', &apos;' . $r->username_instagram . '&apos;)"><i class="fas fa-eye"></i></button>';
+                if (!$r->rejected_at && !$r->approved_at) {
+                    $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(this, ' . $r->id . ')"><i class="fas fa-trash"></i></button>';
                 }
             }
 
             $r->influencer = "<a href=\"https://www.instagram.com/{$r->username_instagram}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-truncate\" style=\"font-size: 16px;\">@{$r->username_instagram}</a> - {$r->name}";
             $r->areas = join(', ', array_column(json_decode($r->areas ?: '[]', true), 'area'));
-            $r->actions = $approve . $reject . $delete . $log;
+            $r->actions = $approve . $reject . $log . $delete;
         }
 
         return $result;

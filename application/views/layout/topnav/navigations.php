@@ -8,7 +8,7 @@
             <?php if ($this->session->has_userdata('username')) : ?>
                 <?php if (getSession('role') !== 'USER'): ?>
                     <li class="nav-item">
-                        <a href="<?= base_url('admin') ?>" class="nav-link">
+                        <a href="<?= base_url('admin/dashboard') ?>" class="nav-link">
                             Home
                         </a>
                     </li>

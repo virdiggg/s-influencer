@@ -14,9 +14,15 @@
                 <!-- Add icons to the links using the .nav-icon class
                 with font-awesome or any other icon font library -->
                 <li class="nav-item">
-                    <a href="<?= base_url('admin') ?>" class="nav-link <?= isMenuActive(base_url('admin')) ?>">
+                    <a href="<?= base_url('admin/dashboard') ?>" class="nav-link <?= isMenuActive(base_url('admin/dashboard')) ?>">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="<?= base_url('admin/requests') ?>" class="nav-link <?= isMenuActive(base_url('admin/requests')) ?>">
+                        <i class="nav-icon fas fa-list"></i>
+                        <p>Influencer Request</p>
                     </a>
                 </li>
                 <li class="nav-item">

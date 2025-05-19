@@ -1,12 +1,12 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-Class Dashboard extends CI_Controller {
+Class Requests extends CI_Controller {
     private $title;
 
     public function __construct() {
         parent::__construct();
         $this->title = $this->config->item('app_name');
-        $this->authenticated->checkAuthAdmin();
+        $this->authenticated->checkAuth();
     }
 
     public function index() {
@@ -16,10 +16,10 @@ Class Dashboard extends CI_Controller {
 
         $data = [
             'title' => $this->title,
-            'view' => 'admin/dashboard/index',
+            'view' => 'admin/requests/index',
             'js' => [
                 'admin/dashboard/modal.php',
-                'admin/dashboard/index.php',
+                'admin/requests/index.php',
             ],
         ];
 

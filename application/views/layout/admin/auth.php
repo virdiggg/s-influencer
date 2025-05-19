@@ -26,7 +26,7 @@
         <!-- /.login-logo -->
         <div class="card card-outline card-success">
             <div class="card-header text-center">
-                <a href="<?= base_url('admin') ?>">
+                <a href="<?= base_url('admin/dashboard') ?>">
                     <img src="<?= base_url('assets/img/xyz.png') ?>" alt="xyz" class="img-fluid" />
                 </a>
             </div>
@@ -57,7 +57,7 @@
                         </div>
                     </form>
                 <?php else : ?>
-                    <label>Go to</label> <a href="<?= base_url('admin') ?>" class="btn btn-block btn-outline-success">Dashboard</a>
+                    <label>Go to</label> <a href="<?= base_url('admin/dashboard') ?>" class="btn btn-block btn-outline-success">Dashboard</a>
                 <?php endif; ?>
             </div>
             <!-- /.card-body -->
@@ -92,7 +92,7 @@
                         } else {
                             message.innerHTML = `<label class="text-success">Redirecting...</label>`;
                             setTimeout(function() {
-                                window.location.replace(initURL + 'admin');
+                                window.location.replace(initURL + 'admin/dashboard');
                             }, 1000);
                         }
                     })

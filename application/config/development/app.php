@@ -43,9 +43,3 @@ $config['using_benchmark']         = false; // true or false
 
 $config['app_name']               = 'Influencer Information System';
 $config['app_name_min']           = 'Influencer';
-
-$config['pusher_key']       = '';
-$config['pusher_secret']    = '';
-$config['pusher_app_id']    = '';
-$config['pusher_cluster']   = 'ap1';
-$config['pusher_channel']   = 'myessen';

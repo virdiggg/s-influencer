@@ -3,46 +3,6 @@
         datatables();
     });
 
-    openApprove = (e, id) => {
-        const usernameInstagram = e.dataset.username_instagram;
-        const followers = e.dataset.followers;
-        const engagementRate = e.dataset.engagement_rate;
-        const name = e.dataset.name;
-        const note = e.dataset.note;
-
-        document.getElementById('row_id').value = id;
-        document.getElementById('username_instagram').value = usernameInstagram;
-        document.getElementById('followers').value = followers;
-        document.getElementById('engagement_rate').value = engagementRate;
-        document.getElementById('name').value = name;
-        document.getElementById('note').value = note;
-        document.getElementById('type_action').value = 'approve';
-        document.getElementById('approveRequestModalLabel').textContent ='Approve Influencer Request';
-        document.getElementById('reject-row').innerHTML = '';
-
-        $('#approveRequestModal').modal('show');
-    }
-
-    openReject = (e, id) => {
-        const usernameInstagram = e.dataset.username_instagram;
-        const followers = e.dataset.followers;
-        const engagementRate = e.dataset.engagement_rate;
-        const name = e.dataset.name;
-        const note = e.dataset.note;
-
-        document.getElementById('row_id').value = id;
-        document.getElementById('username_instagram').value = usernameInstagram;
-        document.getElementById('followers').value = followers;
-        document.getElementById('engagement_rate').value = engagementRate;
-        document.getElementById('name').value = name;
-        document.getElementById('note').value = note;
-        document.getElementById('type_action').value = 'reject';
-        document.getElementById('approveRequestModalLabel').textContent ='Reject Influencer Request';
-        document.getElementById('reject-row').innerHTML = `<label for="reject_note">Reason</label><textarea class="form-control" rows="3" placeholder="Reason" name="reject_note" id="reject_note" required></textarea>`;
-
-        $('#approveRequestModal').modal('show');
-    }
-
     document.getElementById('form-request').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -72,7 +32,7 @@
             .finally(() => {
                 btn.disabled = false;
             });
-    })
+    });
 
     datatables = () => {
         const resultBody = document.getElementById('to-do-list-body');
