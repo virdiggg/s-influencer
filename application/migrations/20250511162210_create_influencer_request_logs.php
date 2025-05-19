@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-Class Migration_Create_influencer_requests_19cS extends CI_Migration {
+Class Migration_Create_influencer_request_logs extends CI_Migration {
     /**
      * Array table fields.
      * 
@@ -24,7 +24,7 @@ Class Migration_Create_influencer_requests_19cS extends CI_Migration {
 
     public function __construct() {
         parent::__construct();
-        $this->name = 'influencer_requests';
+        $this->name = 'influencer_request_logs';
         $this->primary = 'id';
         $this->fields = [
             $this->primary => [
@@ -32,27 +32,13 @@ Class Migration_Create_influencer_requests_19cS extends CI_Migration {
                 'unsigned' => TRUE,
                 'auto_increment' => TRUE,
             ],
-            'influencer_id' => [
+            'request_id' => [
                 'type' => 'BIGINT',
                 'unsigned' => TRUE,
             ],
-            'name' => [
+            'label' => [
                 'type' => 'VARCHAR',
-                'constraint' => 255,
-            ],
-            'username_instagram' => [
-                'type' => 'VARCHAR',
-                'constraint' => 150,
-            ],
-            'followers' => [
-                'type' => 'INT',
-            ],
-            'engagement_rate' => [
-                'type' => 'FLOAT',
-            ],
-            'note' => [
-                'type' => 'TEXT',
-                'null' => TRUE,
+                'constraint' => 50,
             ],
             'created_by' => [
                 'type' => 'VARCHAR',
@@ -60,42 +46,6 @@ Class Migration_Create_influencer_requests_19cS extends CI_Migration {
                 'null' => TRUE,
             ],
             'created_at' => [
-                'type' => 'TIMESTAMP',
-                'null' => TRUE,
-            ],
-            'updated_by' => [
-                'type' => 'VARCHAR',
-                'constraint' => 50,
-                'null' => TRUE,
-            ],
-            'updated_at' => [
-                'type' => 'TIMESTAMP',
-                'null' => TRUE,
-            ],
-            'approved_by' => [
-                'type' => 'VARCHAR',
-                'constraint' => 50,
-                'null' => TRUE,
-            ],
-            'approved_at' => [
-                'type' => 'TIMESTAMP',
-                'null' => TRUE,
-            ],
-            'rejected_by' => [
-                'type' => 'VARCHAR',
-                'constraint' => 50,
-                'null' => TRUE,
-            ],
-            'rejected_at' => [
-                'type' => 'TIMESTAMP',
-                'null' => TRUE,
-            ],
-            'deleted_by' => [
-                'type' => 'VARCHAR',
-                'constraint' => 50,
-                'null' => TRUE,
-            ],
-            'deleted_at' => [
                 'type' => 'TIMESTAMP',
                 'null' => TRUE,
             ],
