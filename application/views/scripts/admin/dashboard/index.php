@@ -3,7 +3,7 @@
         datatables();
     });
 
-    openNote = (e, id) => {
+    openApprove = (e, id) => {
         const usernameInstagram = e.dataset.username_instagram;
         const followers = e.dataset.followers;
         const engagementRate = e.dataset.engagement_rate;
@@ -16,19 +16,43 @@
         document.getElementById('engagement_rate').value = engagementRate;
         document.getElementById('name').value = name;
         document.getElementById('note').value = note;
+        document.getElementById('type_action').value = 'approve';
+        document.getElementById('approveRequestModalLabel').textContent ='Approve Influencer Request';
+        document.getElementById('reject-row').innerHTML = '';
 
         $('#approveRequestModal').modal('show');
     }
 
-    document.getElementById('form-add-creator').addEventListener('submit', function(e) {
+    openReject = (e, id) => {
+        const usernameInstagram = e.dataset.username_instagram;
+        const followers = e.dataset.followers;
+        const engagementRate = e.dataset.engagement_rate;
+        const name = e.dataset.name;
+        const note = e.dataset.note;
+
+        document.getElementById('row_id').value = id;
+        document.getElementById('username_instagram').value = usernameInstagram;
+        document.getElementById('followers').value = followers;
+        document.getElementById('engagement_rate').value = engagementRate;
+        document.getElementById('name').value = name;
+        document.getElementById('note').value = note;
+        document.getElementById('type_action').value = 'reject';
+        document.getElementById('approveRequestModalLabel').textContent ='Reject Influencer Request';
+        document.getElementById('reject-row').innerHTML = `<label for="reject_note">Reason</label><textarea class="form-control" rows="3" placeholder="Reason" name="reject_note" id="reject_note" required></textarea>`;
+
+        $('#approveRequestModal').modal('show');
+    }
+
+    document.getElementById('form-request').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        let typeAction = document.getElementById('type_action').value;
         let btn = document.getElementById('btn-approve');
         let message = document.getElementById('message');
         message.innerHTML = '';
         btn.disabled = true;
 
-        fetch(initURL + 'api/influencer/approve', {
+        fetch(initURL + 'api/influencer/' + typeAction, {
                 method: 'POST',
                 body: new FormData(this)
             })
@@ -65,18 +89,27 @@
                         html += `<div class="row"><div class="col-12 text-center">No data found.</div></div>`;
                     } else {
                         response.data.forEach((val, index) => {
-                            html += `<div class="row">`;
+                            html += `<div class="row border-bottom">`;
 
                             html += `<div class="col-2">${index + 1}</div>`;
                             html += `<div class="col-8"><strong>${val.username_instagram}</strong> - Approve Influencer Request</div>`;
                             html += `<div class="col-2"><button class="btn btn-sm btn-link text-success" title="Approve"
-                                onclick="openNote(this, ${val.id})"
+                                onclick="openApprove(this, ${val.id})"
                                 data-note="${val.note}"
                                 data-username_instagram="${val.username_instagram}"
                                 data-followers="${val.followers}"
                                 data-engagement_rate="${val.engagement_rate}"
                                 data-name="${val.name}">
                                 <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm btn-link text-danger" title="Approve"
+                                onclick="openReject(this, ${val.id})"
+                                data-note="${val.note}"
+                                data-username_instagram="${val.username_instagram}"
+                                data-followers="${val.followers}"
+                                data-engagement_rate="${val.engagement_rate}"
+                                data-name="${val.name}">
+                                <i class="fas fa-times"></i>
                             </button></div>`;
 
                             html += `</div>`; // End div row

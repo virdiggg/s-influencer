@@ -18,9 +18,9 @@
 
 <div class="modal fade" id="approveRequestModal" tabindex="-1" role="dialog" aria-labelledby="approveRequestModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <form id="form-add-creator" class="modal-content">
+        <form id="form-request" class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="approveRequestModalLabel">Approve Influencer Request</h5>
+                <h5 class="modal-title" id="approveRequestModalLabel"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -30,6 +30,7 @@
                     <label for="name">Name</label>
                     <input type="text" class="form-control" placeholder="Name" name="name" id="name" readonly />
                     <input type="hidden" name="id" id="row_id" required />
+                    <input type="hidden" name="type_action" id="type_action" required />
                 </div>
                 <div class="form-group">
                     <label for="username_instagram">Username Instagram</label>
@@ -46,6 +47,10 @@
                 <div class="form-group">
                     <label for="note">Note</label>
                     <textarea class="form-control" rows="3" placeholder="Note" name="note" id="note" readonly></textarea>
+                </div>
+                <div class="form-group" id="reject-row">
+                    <label for="reject_note">Reason</label>
+                    <textarea class="form-control" rows="3" placeholder="Reason" name="reject_note" id="reject_note" ></textarea>
                 </div>
                 <div class="text-danger" id="message"></div>
             </div>

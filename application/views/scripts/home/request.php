@@ -88,6 +88,45 @@
         datatables();
     });
 
+    openLog = (id, username) => {
+        document.getElementById('logsModalLabel').textContent = 'Requests Log - ' + username;
+
+        let formBody = new FormData();
+        formBody.append('id', id);
+
+        fetch(initURL + 'api/influencer/logs', {
+                method: 'POST',
+                body: formBody,
+            })
+            .then(response => response.json())
+            .then(response => {
+                // console.log(response);
+                let logWrapper = document.getElementById('log-wrapper');
+                logWrapper.innerHTML = '<div class="row"><div class="col-12 text-center">Loading...</div></div>';
+
+                let html = `<div class="row border-bottom">
+                    <div class="col-3 text-center"><strong>ACTION BY</strong></div>
+                    <div class="col-2 text-center"><strong>ACTION</strong></div>
+                    <div class="col-2 text-center"><strong>DATE</strong></div>
+                    <div class="col-5 text-center"><strong>NOTE</strong></div>
+                </div>`;
+                response.data.forEach((val, key) => {
+                    html += `<div class="row">`;
+                    html += `<div class="col-3 border">${val.created_by}</div>`;
+                    html += `<div class="col-2 border">${val.label}</div>`;
+                    html += `<div class="col-2 border">${val.created_at}</div>`;
+                    html += `<div class="col-5 border">${val.note}</div>`;
+                    html += `</div>`;
+                });
+                logWrapper.innerHTML = html;
+
+                $('#logsModal').modal('show');
+            })
+            .catch(error => {
+                // console.error('Error:', error);
+            });
+    }
+
     openDelete = (id) => {
         Swal.fire({
             title: 'Delete Influencer Request?',

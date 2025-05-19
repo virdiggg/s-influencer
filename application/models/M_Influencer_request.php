@@ -2,6 +2,7 @@
 
 Class M_Influencer_request extends CI_model {
     private $table = "influencer_requests";
+    private $logs = "influencer_request_logs";
     private $areas = "ms_areas";
     private $categories = "ms_categories";
     private $influencers = "ms_influencers";
@@ -136,7 +137,7 @@ Class M_Influencer_request extends CI_model {
         foreach ($result as $r) {
             $start++;
             $r->no = $start;
-            $approve = $reject = $delete = '';
+            $approve = $reject = $delete = $log = '';
 
             if ($isAdmin) {
                 if ($r->approved_at === null) {
@@ -146,13 +147,19 @@ Class M_Influencer_request extends CI_model {
                 if ($r->rejected_at === null) {
                     $reject = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openReject(' . $r->id . ')"><i class="fas fa-timex"></i></button>';
                 }
+            } else {
+                if (!$r->rejected_at && !$r->approved_at) {
+                    $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(' . $r->id . ')"><i class="fas fa-trash"></i></button>';
+                }
+
+                if ($r->rejected_at) {
+                    $log = '<button type="button" class="btn btn-sm btn-link text-secondary" onclick="openLog(' . $r->id . ', &apos;' . $r->username_instagram . '&apos;)"><i class="fas fa-eye"></i></button>';
+                }
             }
 
-            $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(' . $r->id . ')"><i class="fas fa-trash"></i></button>';
-
-            $r->influencer = "@{$r->username_instagram} - {$r->name}";
+            $r->influencer = "<a href=\"https://www.instagram.com/{$r->username_instagram}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-truncate\" style=\"font-size: 16px;\">@{$r->username_instagram}</a> - {$r->name}";
             $r->areas = join(', ', array_column(json_decode($r->areas ?: '[]', true), 'area'));
-            $r->actions = $approve . $reject . $delete;
+            $r->actions = $approve . $reject . $delete . $log;
         }
 
         return $result;
@@ -230,10 +237,11 @@ Class M_Influencer_request extends CI_model {
         ]);
     }
 
-    public function reject($id) {
+    public function reject($id, $reason) {
         return $this->update($id, [
             'rejected_by' => getSession('username'),
             'rejected_at' => getMicroTimeDateTime(),
+            'reject_note' => $reason,
         ]);
     }
 
@@ -242,5 +250,18 @@ Class M_Influencer_request extends CI_model {
             'deleted_by' => getSession('username'),
             'deleted_at' => getMicroTimeDateTime(),
         ]);
+    }
+
+    public function logs($id) {
+        return $this->db->select('id, request_id, created_by, created_at, label')
+            ->select("(
+                CASE
+                    WHEN label = 'New Request' THEN (SELECT h.note FROM {$this->table} h WHERE h.id = request_id)
+                    WHEN label = 'Rejected' THEN (SELECT h.reject_note FROM {$this->table} h WHERE h.id = request_id)
+                    ELSE ''
+                END
+            ) AS note")
+            ->from($this->logs)
+            ->where('request_id', $id)->order_by('created_at', 'ASC')->get()->result();
     }
 }

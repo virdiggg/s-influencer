@@ -89,6 +89,43 @@ Class Influencer extends CI_Controller {
         return;
     }
 
+    public function logs() {
+        if (!$this->authenticated->isAuthenticated()) {
+            http_response_code(401);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 401,
+                'message' => 'Unauthorized',
+            ]);
+            return;
+        }
+
+        // From input hidden, just name it ID for simplicity
+        $this->form_validation->set_rules('id', 'ID', 'required|trim');
+
+        if ($this->form_validation->run() === FALSE) {
+            http_response_code(422);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 422,
+                'message' => validation_errors(),
+            ]);
+            return;
+        }
+
+        $this->load->model('M_Influencer_request', 'ir', TRUE);
+        $id = sanitizeString($this->input->post('id'));
+
+        $return = [
+            'status' => TRUE,
+            'statusCode' => 200,
+            'message' => 'Records found',
+            'data' => $this->ir->logs($id),
+        ];
+        echo json_encode($return);
+        return;
+    }
+
     public function approve() {
         if (!$this->authenticated->isAuthenticated()) {
             http_response_code(401);
@@ -150,6 +187,7 @@ Class Influencer extends CI_Controller {
 
         // From input hidden, just name it ID for simplicity
         $this->form_validation->set_rules('id', 'ID', 'required|trim');
+        $this->form_validation->set_rules('reject_note', 'Reason', 'required|trim');
 
         if ($this->form_validation->run() === FALSE) {
             http_response_code(422);
@@ -164,7 +202,8 @@ Class Influencer extends CI_Controller {
         $this->load->model('M_Influencer_request', 'ir', TRUE);
 
         $id = sanitizeString($this->input->post('id'));
-        $result = $this->ir->reject($id);
+        $note = sanitizeString($this->input->post('reject_note'));
+        $result = $this->ir->reject($id, $note);
 
         if (!$result) {
             http_response_code(500);
