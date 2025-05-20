@@ -195,7 +195,7 @@ Class M_Influencer_request extends CI_model {
         //     )
         //     FROM {$this->mapping} map
         //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = inf.id
+        //     WHERE map.influencer_id = {$this->table}.id
         // ) AS areas");
         // MySQL
         $this->db->select("(
@@ -209,7 +209,7 @@ Class M_Influencer_request extends CI_model {
             )
             FROM {$this->mapping} map
             JOIN {$this->areas} area ON area.id = map.area_id
-            WHERE map.influencer_id = inf.id
+            WHERE map.influencer_id = {$this->table}.id
             ORDER BY map.id
         ) AS areas");
         $this->db->from($this->table);
