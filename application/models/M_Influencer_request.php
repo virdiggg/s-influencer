@@ -62,7 +62,7 @@ Class M_Influencer_request extends CI_model {
             "updated_by" => $username,
         ]);
         $this->db->insert($this->table, $data);
-        return $this->__find($data);
+        return $this->find($this->db->insert_id());
     }
 
     public function update($id, $param) {
