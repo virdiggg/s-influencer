@@ -66,9 +66,12 @@
                     data: 'areas',
                 },
                 {
+                    data: 'note',
+                },
+                {
                     data: 'status',
                     render: function (data, type, row) {
-                        return '<span class="badge badge-info">' + data + '</span>';
+                        return '<span class="badge badge-'+(data == 'Approved' ? 'success' : 'danger')+'">' + data + '</span>';
                     }
                 },
                 {
@@ -79,42 +82,7 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        datatables();
-    });
-
-    document.getElementById('form-request').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        let typeAction = document.getElementById('type_action').value;
-        let btn = document.getElementById('btn-approve');
-        let message = document.getElementById('message');
-        message.innerHTML = '';
-        btn.disabled = true;
-
-        fetch(initURL + 'api/influencer/' + typeAction, {
-                method: 'POST',
-                body: new FormData(this)
-            })
-            .then(response => response.json())
-            .then(response => {
-                if (response.status === false) {
-                    message.innerHTML = `<label class="text-danger">${response.message}</label>`;
-                } else {
-                    $('#approveRequestModal').modal('hide');
-                    showToast(response.message);
-                    dataTable.draw();
-                }
-            })
-            .catch(error => {
-                message.innerHTML = `<label class="text-danger">${error.message}</label>`;
-            })
-            .finally(() => {
-                btn.disabled = false;
-            });
-    });
-
-    openLog = (id, username) => {
+    openLog = (e, id, username) => {
         document.getElementById('logsModalLabel').textContent = 'Requests Log - ' + username;
 
         let formBody = new FormData();
@@ -152,6 +120,41 @@
                 // console.error('Error:', error);
             });
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        datatables();
+    });
+
+    document.getElementById('form-request').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        let typeAction = document.getElementById('type_action').value;
+        let btn = document.getElementById('btn-approve');
+        let message = document.getElementById('message');
+        message.innerHTML = '';
+        btn.disabled = true;
+
+        fetch(initURL + 'api/influencer/' + typeAction, {
+                method: 'POST',
+                body: new FormData(this)
+            })
+            .then(response => response.json())
+            .then(response => {
+                if (response.status === false) {
+                    message.innerHTML = `<label class="text-danger">${response.message}</label>`;
+                } else {
+                    $('#approveRequestModal').modal('hide');
+                    showToast(response.message);
+                    dataTable.draw();
+                }
+            })
+            .catch(error => {
+                message.innerHTML = `<label class="text-danger">${error.message}</label>`;
+            })
+            .finally(() => {
+                btn.disabled = false;
+            });
+    });
 
     openDelete = (id) => {
         Swal.fire({

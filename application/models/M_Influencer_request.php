@@ -157,13 +157,12 @@ Class M_Influencer_request extends CI_model {
                         <i class="fas fa-times"></i></button>';
                 }
             } else {
-                $log = '<button type="button" class="btn btn-sm btn-link text-secondary" onclick="openLog(this, ' . $r->id . ', &apos;' . $r->username_instagram . '&apos;)"><i class="fas fa-eye"></i></button>';
-
                 if (!$r->rejected_at && !$r->approved_at) {
                     $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(this, ' . $r->id . ')"><i class="fas fa-trash"></i></button>';
                 }
             }
 
+            $log = '<button type="button" class="btn btn-sm btn-link text-secondary" title="Log" onclick="openLog(this, ' . $r->id . ', &apos;' . $r->username_instagram . '&apos;)"><i class="fas fa-eye"></i></button>';
             $r->influencer = "<a href=\"https://www.instagram.com/{$r->username_instagram}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-truncate\" style=\"font-size: 16px;\">@{$r->username_instagram}</a> - {$r->name}";
             $r->areas = join(', ', array_column(json_decode($r->areas ?: '[]', true), 'area'));
             $r->actions = $approve . $reject . $log . $delete;
