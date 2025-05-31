@@ -1,6 +1,9 @@
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Master Influencer</h3>
+        <div class="card-tools">
+            <a class="btn btn-primary" href="<?= base_url('admin/master/influencers/create') ?>"><i class="fas fa-plus"></i> New</a>
+        </div>
     </div>
     <div class="card-body">
         <div class="table-responsive">

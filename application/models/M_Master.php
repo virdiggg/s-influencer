@@ -66,34 +66,34 @@ Class M_Master extends CI_model {
             null
         ) AS category");
         // PostgreSQL
-        // $this->db->select("(
-        //     SELECT JSON_AGG(
-        //         JSON_BUILD_OBJECT(
-        //             'id', map.id,
-        //             'area_id', map.area_id,
-        //             'influencer_id', map.influencer_id,
-        //             'area', area.name
-        //         ) ORDER BY map.id
-        //     )
-        //     FROM {$this->mapping} map
-        //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = inf.id
-        // ) AS areas");
-        // MySQL
         $this->db->select("(
-            SELECT JSON_ARRAYAGG(
-            JSON_OBJECT(
-                'id', map.id,
-                'area_id', map.area_id,
-                'influencer_id', map.influencer_id,
-                'area', area.name
-            )
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                    'id', map.id,
+                    'area_id', map.area_id,
+                    'influencer_id', map.influencer_id,
+                    'area', area.name
+                ) ORDER BY map.id
             )
             FROM {$this->mapping} map
             JOIN {$this->areas} area ON area.id = map.area_id
             WHERE map.influencer_id = inf.id
-            ORDER BY map.id
         ) AS areas");
+        // MySQL
+        // $this->db->select("(
+        //     SELECT JSON_ARRAYAGG(
+        //     JSON_OBJECT(
+        //         'id', map.id,
+        //         'area_id', map.area_id,
+        //         'influencer_id', map.influencer_id,
+        //         'area', area.name
+        //     )
+        //     )
+        //     FROM {$this->mapping} map
+        //     JOIN {$this->areas} area ON area.id = map.area_id
+        //     WHERE map.influencer_id = inf.id
+        //     ORDER BY map.id
+        // ) AS areas");
         $this->db->from($this->influencers . ' inf');
 
         if (count($filters) > 0) {
@@ -174,6 +174,47 @@ Class M_Master extends CI_model {
         return $result;
     }
 
+    public function store($param, $area = []) {
+        if (count($param) === 0) {
+            return null;
+        }
+
+        $this->db->trans_start();
+        $this->db->trans_strict(FALSE);
+
+        // PostgreSQL
+        $val = $var = [];
+        foreach ($param as $key => $p) {
+            $val[] = !is_null($p) ? $this->db->escape($p) : "NULL";
+            $var[] = '"' . $key . '"';
+        }
+
+        $var[] = "created_at, created_by, updated_at, updated_by";
+        $val[] = "NOW(), '" . $this->username . "', NOW(), '" . $this->username . "'";
+
+        $query = "INSERT INTO {$this->influencers} (" . join(", ", $var) . ") VALUES (" . join(", ", $val) . ") RETURNING *;";
+        unset($val, $var);
+        $influencer = $this->db->query($query)->row();
+
+        // MySQL
+        // $this->db->insert($this->influencers, $param);
+        // $influencer = $this->find($this->db->insert_id());
+
+        if (count($area) > 0) {
+            $this->insertArea($influencer->id, $area);
+        }
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+
+            return null;
+        }
+
+        $this->db->trans_commit();
+
+        return $influencer;
+    }
+
     public function update($id, $param, $area = []) {
         if (count($param) === 0) {
             return null;
@@ -189,7 +230,7 @@ Class M_Master extends CI_model {
             $values[] = '"' . $key . '" = ' . $val;
         }
 
-        $values[] = "updated_at = NOW(), updated_by = '" . getSession('username') . "'";
+        $values[] = "updated_at = NOW(), updated_by = '" . $this->username . "'";
 
         $set = join(", ", $values);
 

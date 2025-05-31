@@ -4,24 +4,14 @@
         fetchAreas();
     });
 
-    function inArray(needle, haystack) {
-        let length = haystack.length;
-        for (let i = 0; i < length; i++) {
-            if (haystack[i] == needle) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    document.getElementById('form-edit').addEventListener('submit', function(e) {
+    document.getElementById('form-create').addEventListener('submit', function(e) {
         e.preventDefault();
 
         const btnBack = document.getElementById('btn-back').href;
         let btn = document.getElementById('btn-submit');
         btn.disabled = true;
 
-        fetch(initURL + 'admin/master/influencers/update', {
+        fetch(initURL + 'admin/master/influencers/store', {
                 method: 'POST',
                 body: new FormData(this)
             })
@@ -45,7 +35,6 @@
     });
 
     fetchCategories = () => {
-        let initialCategoryId = "<?= $data->category_id ?>";
         fetch(initURL + 'api/master/categories', {
                 method: 'GET',
             })
@@ -54,11 +43,7 @@
                 let data = response.data;
                 let html = '';
                 data.forEach((val, key) => {
-                    let selected = '';
-                    if (val.id == initialCategoryId) {
-                        selected = 'selected';
-                    }
-                    html += `<option value="${val.id}" ${selected}>${val.name}</option>`;
+                    html += `<option value="${val.id}">${val.name}</option>`;
                 });
 
                 if ($('#category').hasClass("select2-hidden-accessible")) {
@@ -77,14 +62,6 @@
     }
 
     fetchAreas = () => {
-        let initialAreasJSON = '<?= $data->areas ?>';
-        let initialAreas = JSON.parse(initialAreasJSON);
-
-        let areas = [];
-        initialAreas.forEach((val, key) => {
-            areas.push(val.area_id);
-        });
-
         fetch(initURL + 'api/master/areas', {
                 method: 'GET',
             })
@@ -93,11 +70,7 @@
                 let data = response.data;
                 let html = '';
                 data.forEach((val, key) => {
-                    let selected = '';
-                    if (inArray(val.id, areas)) {
-                        selected = 'selected';
-                    }
-                    html += `<option value="${val.id}" ${selected}>${val.name}</option>`;
+                    html += `<option value="${val.id}">${val.name}</option>`;
                 });
 
                 if ($('#area').hasClass("select2-hidden-accessible")) {

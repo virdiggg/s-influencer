@@ -27,6 +27,22 @@ class Influencers extends CI_Controller
         return $this->load->view('layout/admin/wrapper', $data);
     }
 
+    public function create() {
+        if (getSession('role') === 'USER') {
+            return redirect('/');
+        }
+
+        $data = [
+            'title' => $this->title,
+            'view' => 'admin/master/influencers/create',
+            'js' => [
+                'admin/master/influencers/create.php',
+            ],
+        ];
+
+        return $this->load->view('layout/admin/wrapper', $data);
+    }
+
     public function edit() {
         if (getSession('role') === 'USER') {
             return redirect('/');
@@ -52,6 +68,67 @@ class Influencers extends CI_Controller
         ];
 
         return $this->load->view('layout/admin/wrapper', $data);
+    }
+
+    public function store() {
+        if (!$this->authenticated->isAuthenticated() || getSession('role') === 'USER') {
+            http_response_code(401);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 401,
+                'message' => 'Unauthorized',
+            ]);
+            return;
+        }
+
+        $this->form_validation->set_rules('username', 'Username', 'required|trim');
+        $this->form_validation->set_rules('name', 'Name', 'required|trim');
+        $this->form_validation->set_rules('engagement_rate', 'Engagement Rate', 'required|trim');
+        $this->form_validation->set_rules('followers', 'Followers', 'required|trim');
+        $this->form_validation->set_rules('category', 'Category', 'required|trim');
+
+        if ($this->form_validation->run() === FALSE) {
+            http_response_code(422);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 422,
+                'message' => validation_errors(),
+            ]);
+            return;
+        }
+
+        $username = strtolower(sanitizeString($this->input->post('username')));
+        $name = sanitizeString($this->input->post('name'));
+        $engagement_rate = (float) sanitizeString($this->input->post('engagement_rate'));
+        $followers = (int) normalizeNumber($this->input->post('followers'));
+        $category = sanitizeString($this->input->post('category'));
+        $area = array_filter((array) $this->input->post('area')) ?: [];
+
+        $result = $this->mi->store([
+            'username_instagram' => $username,
+            'name' => $name,
+            'engagement_rate' => $engagement_rate,
+            'followers' => $followers,
+            'category_id' => $category,
+        ], $area);
+
+        if (!$result) {
+            http_response_code(500);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 500,
+                'message' => 'Failed to create influencer',
+            ]);
+            return;
+        }
+
+        http_response_code(201);
+        echo json_encode([
+            'status' => TRUE,
+            'statusCode' => 201,
+            'message' => 'Influencer created successfully',
+        ]);
+        return;
     }
 
     public function update() {
