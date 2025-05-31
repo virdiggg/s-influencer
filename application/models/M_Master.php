@@ -158,7 +158,8 @@ Class M_Master extends CI_model {
                     $influencer = "<a href=\"https://www.instagram.com/{$r->username_instagram}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-truncate\" style=\"font-size: 16px;\">@{$r->username_instagram}</a> - {$r->name}";
                     $edit = '<a href="' . base_url('admin/master/influencers/edit?id=' . $r->id) . '" class="btn btn-sm btn-link text-warning">
                         <i class="fas fa-edit"></i></a>';
-                    $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(this, ' . $r->id . ')"><i class="fas fa-trash"></i></button>';
+                    // $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(this, ' . $r->id . ')"><i class="fas fa-trash"></i></button>';
+                    $delete = '';
                     $actions = $edit . ' ' . $delete;
                 } else {
                     $actions = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showDetail(' . $r->id . ')">Detail</button>';
