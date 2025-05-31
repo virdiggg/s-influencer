@@ -90,11 +90,10 @@ class Influencers extends CI_Controller
         $followers = (int) normalizeNumber($this->input->post('followers'));
         $category = sanitizeString($this->input->post('category'));
         $area = array_filter((array) $this->input->post('area')) ?: [];
-        dd($area, array_map(function ($a) use($id) { return ['area_id' => $a, 'influencer_id' => $id]; }, $area));
 
         $result = $this->mi->update($id,
         [
-            'username' => $username,
+            'username_instagram' => $username,
             'name' => $name,
             'engagement_rate' => $engagement_rate,
             'followers' => $followers,

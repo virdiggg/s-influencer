@@ -17,6 +17,7 @@
     document.getElementById('form-edit').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        const btnBack = document.getElementById('btn-back').href;
         let btn = document.getElementById('btn-submit');
         btn.disabled = true;
 
@@ -30,6 +31,9 @@
                     showToast(response.message);
                 } else {
                     showToast(response.message);
+                    setTimeout(() => {
+                        window.location.replace(btnBack);
+                    }, 500);
                     // datatables();
                 }
             })

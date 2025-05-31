@@ -183,38 +183,38 @@ Class M_Master extends CI_model {
         $this->db->trans_strict(FALSE);
 
         // PostgreSQL
-        // $values = [];
-        // foreach ($param as $key => $p) {
-        //     $val = !is_null($p) ? $this->db->escape($p) : "NULL";
-        //     $values[] = '"' . $key . '" = ' . $val;
-        // }
+        $values = [];
+        foreach ($param as $key => $p) {
+            $val = !is_null($p) ? $this->db->escape($p) : "NULL";
+            $values[] = '"' . $key . '" = ' . $val;
+        }
 
-        // $values[] = "updated_at = NOW(), updated_by = '" . getSession('username') . "'";
+        $values[] = "updated_at = NOW(), updated_by = '" . getSession('username') . "'";
 
-        // $set = join(", ", $values);
+        $set = join(", ", $values);
 
-        // $tmpWhere = [];
-        // $tmpWhere[] = "\"{$this->primary}\" = " . $this->db->escape($id);
+        $tmpWhere = [];
+        $tmpWhere[] = "\"{$this->primary}\" = " . $this->db->escape($id);
 
-        // $where = "WHERE " . join(" AND ", $tmpWhere);
-        // $query = "UPDATE \"{$this->table}\" SET {$set} {$where} RETURNING *;";
-        // unset($tmpWhere, $values, $where);
-        // $influencer = $this->db->query($query)->row();
+        $where = "WHERE " . join(" AND ", $tmpWhere);
+        $query = "UPDATE \"{$this->influencers}\" SET {$set} {$where} RETURNING *;";
+        unset($tmpWhere, $values, $where);
+        $influencer = $this->db->query($query)->row();
 
         // MySQL
-        $param = array_merge($param, [
-            'updated_at' => date("Y-m-d H:i:s"),
-            'updated_by' => $this->username,
-        ]);
-        $this->db->where($this->primary, $id);
-        $this->db->update($this->influencers, $param);
+        // $param = array_merge($param, [
+        //     'updated_at' => date("Y-m-d H:i:s"),
+        //     'updated_by' => $this->username,
+        // ]);
+        // $this->db->where($this->primary, $id);
+        // $this->db->update($this->influencers, $param);
+        // $influencer = $this->find($id);
 
         if (count($area) > 0) {
             $this->deleteArea($id);
             $this->insertArea($id, $area);
         }
 
-        $influencer = $this->find($id);
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
 

@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="card-footer">
-            <a class="btn btn-secondary" href="<?= base_url('admin/master/influencers') ?>"><i class="fas fa-arrow-left"></i> Back</a>
+            <a class="btn btn-secondary" href="<?= base_url('admin/master/influencers') ?>" id="btn-back"><i class="fas fa-arrow-left"></i> Back</a>
             <button type="submit" class="btn btn-primary" id="btn-submit"><i class="fas fa-save"></i> Save</button>
         </div>
     </form>
