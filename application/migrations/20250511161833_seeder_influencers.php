@@ -24,7 +24,7 @@ class Migration_Seeder_influencers extends CI_Migration
      */
     public function up()
     {
-        $filePath = STORAGE_PATH . 'database.xlsx';
+        $filePath = STORAGE_PATH . 'database2.xlsx';
 
         $spreadsheet = IOFactory::load($filePath);
         $sheet = $spreadsheet->getActiveSheet();
