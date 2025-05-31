@@ -56,7 +56,13 @@ Class M_Master extends CI_model {
     }
 
     public function influencers($limit = null, $offset = null, $filters = []) {
-        $this->db->select("inf.id, inf.name, inf.username_instagram, inf.category_id, inf.followers, inf.engagement_rate");
+        $this->db->select("inf.id, inf.name, inf.username_instagram, inf.category_id, inf.followers, inf.engagement_rate,
+        COALESCE(
+            (
+                SELECT cat.name FROM {$this->categories} cat WHERE cat.id = inf.category_id
+            ),
+            null
+        ) AS category");
         // PostgreSQL
         // $this->db->select("(
         //     SELECT JSON_AGG(
@@ -137,14 +143,105 @@ Class M_Master extends CI_model {
     }
 
     public function parse($result, $start = 0) {
+        $isAdmin = getSession('role') === 'ADMIN';
+        $isAuthenticated = $this->authenticated->isAuthenticated();
+
         foreach ($result as $r) {
             $start++;
             $r->no = $start;
-            if ($this->authenticated->isAuthenticated()) {
-                $r->action = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showDetail(' . $r->id . ')">Detail</button>';
+            if ($isAuthenticated) {
+                if ($isAdmin) {
+                    $edit = '<a href="' . base_url('admin/master/influencer/edit/' . $r->id) . '" class="btn btn-sm btn-link text-success">
+                        <i class="fas fa-edit"></i></a>';
+                    $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(this, ' . $r->id . ')"><i class="fas fa-trash"></i></button>';
+                    $r->actions = $edit . ' ' . $delete;
+                } else {
+                    $r->actions = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showDetail(' . $r->id . ')">Detail</button>';
+                }
             } else {
-                $r->action = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showLoginModal()">Detail</button>';
+                $r->actions = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showLoginModal()">Detail</button>';
             }
+        }
+
+        return $result;
+    }
+
+    public function update($id, $param) {
+        if (count($param) === 0) {
+            return null;
+        }
+
+        // PostgreSQL
+        // $values = [];
+        // foreach ($param as $key => $p) {
+        //     $val = !is_null($p) ? $this->db->escape($p) : "NULL";
+        //     $values[] = '"' . $key . '" = ' . $val;
+        // }
+
+        // $values[] = "updated_at = NOW(), updated_by = '" . getSession('username') . "'";
+
+        // $set = join(", ", $values);
+
+        // $tmpWhere = [];
+        // $tmpWhere[] = "\"{$this->primary}\" = " . $this->db->escape($id);
+
+        // $where = "WHERE " . join(" AND ", $tmpWhere);
+        // $query = "UPDATE \"{$this->table}\" SET {$set} {$where} RETURNING *;";
+        // unset($tmpWhere, $values, $where);
+        // return $this->db->query($query)->row();
+
+        // MySQL
+        $param = array_merge($param, [
+            "updated_at" => date("Y-m-d H:i:s"),
+            "updated_by" => getSession("username"),
+        ]);
+        $this->db->where($this->primary, $id);
+        $this->db->update($this->table, $param);
+        return $this->find($id);
+    }
+
+    private function __find($where) {
+        $this->db->select();
+        $this->db->from($this->table);
+        $this->db->where($where);
+        return $this->db->get()->row();
+    }
+
+    public function find($id) {
+        return $this->__find([$this->primary => $id]);
+    }
+
+    public function parseDatatables($result, $start = 0) {
+        $isAdmin = getSession('role') === 'ADMIN';
+
+        foreach ($result as $r) {
+            $start++;
+            $r->no = $start;
+            $approve = $reject = $delete = $log = '';
+
+            if ($isAdmin) {
+                if ($r->rejected_at === null && $r->approved_at === null) {
+                    $approve = '<button type="button" class="btn btn-sm btn-link text-success" onclick="openApprove(this, ' . $r->id . ')"
+                        data-note="' . $r->note . '" data-username_instagram="' . $r->username_instagram . '"
+                        data-followers="' . $r->followers . '" data-engagement_rate="' . $r->engagement_rate . '"
+                        data-name="' . $r->name . '">
+                        <i class="fas fa-check"></i></button>';
+                    $reject = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openReject(this, ' . $r->id . ')"
+                        data-note="' . $r->note . '" data-username_instagram="' . $r->username_instagram . '"
+                        data-followers="' . $r->followers . '" data-engagement_rate="' . $r->engagement_rate . '"
+                        data-name="' . $r->name . '">
+                        <i class="fas fa-times"></i></button>';
+                }
+            } else {
+                if (!$r->rejected_at && !$r->approved_at) {
+                    $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(this, ' . $r->id . ')"><i class="fas fa-trash"></i></button>';
+                }
+            }
+
+            $log = '<button type="button" class="btn btn-sm btn-link text-secondary" title="Log" onclick="openLog(this, ' . $r->id . ', &apos;' . $r->username_instagram . '&apos;)"><i class="fas fa-eye"></i></button>';
+            $r->influencer = "<a href=\"https://www.instagram.com/{$r->username_instagram}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-truncate\" style=\"font-size: 16px;\">@{$r->username_instagram}</a> - {$r->name}";
+            $r->areas = join(', ', array_column(json_decode($r->areas ?: '[]', true), 'area'));
+            $r->actions = $approve . $reject . $log . $delete;
         }
 
         return $result;

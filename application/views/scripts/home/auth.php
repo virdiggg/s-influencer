@@ -18,7 +18,6 @@
                 } else {
                     if (response.role == 'ADMIN') {
                         window.location.replace(initURL + 'admin/dashboard');
-                        // window.location.href = initURL + 'admin/dashboard';
                     } else {
                         window.location.reload();
                     }
