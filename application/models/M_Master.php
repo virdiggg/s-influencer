@@ -276,34 +276,34 @@ Class M_Master extends CI_model {
             null
         ) AS category");
         // PostgreSQL
-        $this->db->select("(
-            SELECT JSON_AGG(
-                JSON_BUILD_OBJECT(
-                    'id', map.id,
-                    'area_id', map.area_id,
-                    'influencer_id', map.influencer_id,
-                    'area', area.name
-                ) ORDER BY map.id
-            )
-            FROM {$this->mapping} map
-            JOIN {$this->areas} area ON area.id = map.area_id
-            WHERE map.influencer_id = inf.id
-        ) AS areas");
-        // MySQL
         // $this->db->select("(
-        //     SELECT JSON_ARRAYAGG(
-        //     JSON_OBJECT(
-        //         'id', map.id,
-        //         'area_id', map.area_id,
-        //         'influencer_id', map.influencer_id,
-        //         'area', area.name
-        //     )
+        //     SELECT JSON_AGG(
+        //         JSON_BUILD_OBJECT(
+        //             'id', map.id,
+        //             'area_id', map.area_id,
+        //             'influencer_id', map.influencer_id,
+        //             'area', area.name
+        //         ) ORDER BY map.id
         //     )
         //     FROM {$this->mapping} map
         //     JOIN {$this->areas} area ON area.id = map.area_id
         //     WHERE map.influencer_id = inf.id
-        //     ORDER BY map.id
         // ) AS areas");
+        // MySQL
+        $this->db->select("(
+            SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'id', map.id,
+                'area_id', map.area_id,
+                'influencer_id', map.influencer_id,
+                'area', area.name
+            )
+            )
+            FROM {$this->mapping} map
+            JOIN {$this->areas} area ON area.id = map.area_id
+            WHERE map.influencer_id = inf.id
+            ORDER BY map.id
+        ) AS areas");
         $this->db->from($this->influencers . ' inf');
         $this->db->where($where);
         return $this->db->get()->row();
