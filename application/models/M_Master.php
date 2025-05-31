@@ -183,22 +183,22 @@ Class M_Master extends CI_model {
         $this->db->trans_strict(FALSE);
 
         // PostgreSQL
-        $val = $var = [];
-        foreach ($param as $key => $p) {
-            $val[] = !is_null($p) ? $this->db->escape($p) : "NULL";
-            $var[] = '"' . $key . '"';
-        }
+        // $val = $var = [];
+        // foreach ($param as $key => $p) {
+        //     $val[] = !is_null($p) ? $this->db->escape($p) : "NULL";
+        //     $var[] = '"' . $key . '"';
+        // }
 
-        $var[] = "created_at, created_by, updated_at, updated_by";
-        $val[] = "NOW(), '" . $this->username . "', NOW(), '" . $this->username . "'";
+        // $var[] = "created_at, created_by, updated_at, updated_by";
+        // $val[] = "NOW(), '" . $this->username . "', NOW(), '" . $this->username . "'";
 
-        $query = "INSERT INTO {$this->influencers} (" . join(", ", $var) . ") VALUES (" . join(", ", $val) . ") RETURNING *;";
-        unset($val, $var);
-        $influencer = $this->db->query($query)->row();
+        // $query = "INSERT INTO {$this->influencers} (" . join(", ", $var) . ") VALUES (" . join(", ", $val) . ") RETURNING *;";
+        // unset($val, $var);
+        // $influencer = $this->db->query($query)->row();
 
         // MySQL
-        // $this->db->insert($this->influencers, $param);
-        // $influencer = $this->find($this->db->insert_id());
+        $this->db->insert($this->influencers, $param);
+        $influencer = $this->find($this->db->insert_id());
 
         if (count($area) > 0) {
             $this->insertArea($influencer->id, $area);
@@ -224,32 +224,32 @@ Class M_Master extends CI_model {
         $this->db->trans_strict(FALSE);
 
         // PostgreSQL
-        $values = [];
-        foreach ($param as $key => $p) {
-            $val = !is_null($p) ? $this->db->escape($p) : "NULL";
-            $values[] = '"' . $key . '" = ' . $val;
-        }
+        // $values = [];
+        // foreach ($param as $key => $p) {
+        //     $val = !is_null($p) ? $this->db->escape($p) : "NULL";
+        //     $values[] = '"' . $key . '" = ' . $val;
+        // }
 
-        $values[] = "updated_at = NOW(), updated_by = '" . $this->username . "'";
+        // $values[] = "updated_at = NOW(), updated_by = '" . $this->username . "'";
 
-        $set = join(", ", $values);
+        // $set = join(", ", $values);
 
-        $tmpWhere = [];
-        $tmpWhere[] = "\"{$this->primary}\" = " . $this->db->escape($id);
+        // $tmpWhere = [];
+        // $tmpWhere[] = "\"{$this->primary}\" = " . $this->db->escape($id);
 
-        $where = "WHERE " . join(" AND ", $tmpWhere);
-        $query = "UPDATE \"{$this->influencers}\" SET {$set} {$where} RETURNING *;";
-        unset($tmpWhere, $values, $where);
-        $influencer = $this->db->query($query)->row();
+        // $where = "WHERE " . join(" AND ", $tmpWhere);
+        // $query = "UPDATE \"{$this->influencers}\" SET {$set} {$where} RETURNING *;";
+        // unset($tmpWhere, $values, $where);
+        // $influencer = $this->db->query($query)->row();
 
         // MySQL
-        // $param = array_merge($param, [
-        //     'updated_at' => date("Y-m-d H:i:s"),
-        //     'updated_by' => $this->username,
-        // ]);
-        // $this->db->where($this->primary, $id);
-        // $this->db->update($this->influencers, $param);
-        // $influencer = $this->find($id);
+        $param = array_merge($param, [
+            'updated_at' => date("Y-m-d H:i:s"),
+            'updated_by' => $this->username,
+        ]);
+        $this->db->where($this->primary, $id);
+        $this->db->update($this->influencers, $param);
+        $influencer = $this->find($id);
 
         if (count($area) > 0) {
             $this->deleteArea($id);
