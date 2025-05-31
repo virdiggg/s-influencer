@@ -7,9 +7,11 @@ Class M_Master extends CI_model {
     private $mapping = "influencer_mappings";
 
     private $primary = "id";
+    private $username;
 
     public function __construct() {
         parent::__construct();
+        $this->username = getSession("username");
     }
 
     public function categories() {
@@ -149,27 +151,36 @@ Class M_Master extends CI_model {
         foreach ($result as $r) {
             $start++;
             $r->no = $start;
+            $actions = $influencer = '';
+
             if ($isAuthenticated) {
                 if ($isAdmin) {
-                    $edit = '<a href="' . base_url('admin/master/influencer/edit/' . $r->id) . '" class="btn btn-sm btn-link text-success">
+                    $influencer = "<a href=\"https://www.instagram.com/{$r->username_instagram}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-truncate\" style=\"font-size: 16px;\">@{$r->username_instagram}</a> - {$r->name}";
+                    $edit = '<a href="' . base_url('admin/master/influencers/edit?id=' . $r->id) . '" class="btn btn-sm btn-link text-warning">
                         <i class="fas fa-edit"></i></a>';
                     $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(this, ' . $r->id . ')"><i class="fas fa-trash"></i></button>';
-                    $r->actions = $edit . ' ' . $delete;
+                    $actions = $edit . ' ' . $delete;
                 } else {
-                    $r->actions = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showDetail(' . $r->id . ')">Detail</button>';
+                    $actions = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showDetail(' . $r->id . ')">Detail</button>';
                 }
             } else {
-                $r->actions = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showLoginModal()">Detail</button>';
+                $actions = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showLoginModal()">Detail</button>';
             }
+
+            $r->influencer = $influencer;
+            $r->actions = $actions;
         }
 
         return $result;
     }
 
-    public function update($id, $param) {
+    public function update($id, $param, $area = []) {
         if (count($param) === 0) {
             return null;
         }
+
+        $this->db->trans_start();
+        $this->db->trans_strict(FALSE);
 
         // PostgreSQL
         // $values = [];
@@ -188,21 +199,71 @@ Class M_Master extends CI_model {
         // $where = "WHERE " . join(" AND ", $tmpWhere);
         // $query = "UPDATE \"{$this->table}\" SET {$set} {$where} RETURNING *;";
         // unset($tmpWhere, $values, $where);
-        // return $this->db->query($query)->row();
+        // $influencer = $this->db->query($query)->row();
 
         // MySQL
         $param = array_merge($param, [
-            "updated_at" => date("Y-m-d H:i:s"),
-            "updated_by" => getSession("username"),
+            'updated_at' => date("Y-m-d H:i:s"),
+            'updated_by' => $this->username,
         ]);
         $this->db->where($this->primary, $id);
-        $this->db->update($this->table, $param);
-        return $this->find($id);
+        $this->db->update($this->influencers, $param);
+
+        if (count($area) > 0) {
+            $this->deleteArea($id);
+            $this->insertArea($id, $area);
+        }
+
+        $influencer = $this->find($id);
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+
+            return null;
+        }
+
+        $this->db->trans_commit();
+
+        return $influencer;
     }
 
     private function __find($where) {
-        $this->db->select();
-        $this->db->from($this->table);
+        $this->db->select("inf.id, inf.name, inf.username_instagram, inf.category_id, inf.followers, inf.engagement_rate,
+        COALESCE(
+            (
+                SELECT cat.name FROM {$this->categories} cat WHERE cat.id = inf.category_id
+            ),
+            null
+        ) AS category");
+        // PostgreSQL
+        $this->db->select("(
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                    'id', map.id,
+                    'area_id', map.area_id,
+                    'influencer_id', map.influencer_id,
+                    'area', area.name
+                ) ORDER BY map.id
+            )
+            FROM {$this->mapping} map
+            JOIN {$this->areas} area ON area.id = map.area_id
+            WHERE map.influencer_id = inf.id
+        ) AS areas");
+        // MySQL
+        // $this->db->select("(
+        //     SELECT JSON_ARRAYAGG(
+        //     JSON_OBJECT(
+        //         'id', map.id,
+        //         'area_id', map.area_id,
+        //         'influencer_id', map.influencer_id,
+        //         'area', area.name
+        //     )
+        //     )
+        //     FROM {$this->mapping} map
+        //     JOIN {$this->areas} area ON area.id = map.area_id
+        //     WHERE map.influencer_id = inf.id
+        //     ORDER BY map.id
+        // ) AS areas");
+        $this->db->from($this->influencers . ' inf');
         $this->db->where($where);
         return $this->db->get()->row();
     }
@@ -211,39 +272,27 @@ Class M_Master extends CI_model {
         return $this->__find([$this->primary => $id]);
     }
 
-    public function parseDatatables($result, $start = 0) {
-        $isAdmin = getSession('role') === 'ADMIN';
+    public function deleteArea($influencer_id) {
+        $this->db->where('influencer_id', $influencer_id);
+        $this->db->delete($this->mapping);
 
-        foreach ($result as $r) {
-            $start++;
-            $r->no = $start;
-            $approve = $reject = $delete = $log = '';
+        return true;
+    }
 
-            if ($isAdmin) {
-                if ($r->rejected_at === null && $r->approved_at === null) {
-                    $approve = '<button type="button" class="btn btn-sm btn-link text-success" onclick="openApprove(this, ' . $r->id . ')"
-                        data-note="' . $r->note . '" data-username_instagram="' . $r->username_instagram . '"
-                        data-followers="' . $r->followers . '" data-engagement_rate="' . $r->engagement_rate . '"
-                        data-name="' . $r->name . '">
-                        <i class="fas fa-check"></i></button>';
-                    $reject = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openReject(this, ' . $r->id . ')"
-                        data-note="' . $r->note . '" data-username_instagram="' . $r->username_instagram . '"
-                        data-followers="' . $r->followers . '" data-engagement_rate="' . $r->engagement_rate . '"
-                        data-name="' . $r->name . '">
-                        <i class="fas fa-times"></i></button>';
-                }
-            } else {
-                if (!$r->rejected_at && !$r->approved_at) {
-                    $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(this, ' . $r->id . ')"><i class="fas fa-trash"></i></button>';
-                }
-            }
+    public function insertArea($id, $area) {
+        $today = date("Y-m-d H:i:s");
+        $username = $this->username;
 
-            $log = '<button type="button" class="btn btn-sm btn-link text-secondary" title="Log" onclick="openLog(this, ' . $r->id . ', &apos;' . $r->username_instagram . '&apos;)"><i class="fas fa-eye"></i></button>';
-            $r->influencer = "<a href=\"https://www.instagram.com/{$r->username_instagram}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-truncate\" style=\"font-size: 16px;\">@{$r->username_instagram}</a> - {$r->name}";
-            $r->areas = join(', ', array_column(json_decode($r->areas ?: '[]', true), 'area'));
-            $r->actions = $approve . $reject . $log . $delete;
-        }
+        $param = array_map(function ($a) use($id, $today, $username) {
+            return [
+                'area_id' => $a,
+                'influencer_id' => $id,
+                'created_at' => $today,
+                'created_by' => $username
+            ];
+        }, $area);
+        $this->db->insert_batch($this->mapping, $param);
 
-        return $result;
+        return true;
     }
 }

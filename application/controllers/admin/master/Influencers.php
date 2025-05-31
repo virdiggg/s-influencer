@@ -8,6 +8,7 @@ class Influencers extends CI_Controller
         parent::__construct();
         $this->title = $this->config->item('app_name');
         $this->authenticated->checkAuth();
+        $this->load->model('M_Master', 'mi', TRUE);
     }
 
     public function index() {
@@ -24,6 +25,99 @@ class Influencers extends CI_Controller
         ];
 
         return $this->load->view('layout/admin/wrapper', $data);
+    }
+
+    public function edit() {
+        if (getSession('role') === 'USER') {
+            return redirect('/');
+        }
+
+        $id = sanitizeString($this->input->get('id'));
+        if (empty($id)) {
+            return redirect('admin/master/influencers');
+        }
+
+        $influencer = $this->mi->find($id);
+        if (empty($influencer)) {
+            return redirect('admin/master/influencers');
+        }
+
+        $data = [
+            'title' => $this->title,
+            'view' => 'admin/master/influencers/edit',
+            'js' => [
+                'admin/master/influencers/edit.php',
+            ],
+            'data' => $influencer,
+        ];
+
+        return $this->load->view('layout/admin/wrapper', $data);
+    }
+
+    public function update() {
+        if (!$this->authenticated->isAuthenticated() || getSession('role') === 'USER') {
+            http_response_code(401);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 401,
+                'message' => 'Unauthorized',
+            ]);
+            return;
+        }
+
+        // From input hidden, just name it ID for simplicity
+        $this->form_validation->set_rules('id', 'ID', 'required|trim');
+        $this->form_validation->set_rules('username', 'Username', 'required|trim');
+        $this->form_validation->set_rules('name', 'Name', 'required|trim');
+        $this->form_validation->set_rules('engagement_rate', 'Engagement Rate', 'required|trim');
+        $this->form_validation->set_rules('followers', 'Followers', 'required|trim');
+        $this->form_validation->set_rules('category', 'Category', 'required|trim');
+
+        if ($this->form_validation->run() === FALSE) {
+            http_response_code(422);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 422,
+                'message' => validation_errors(),
+            ]);
+            return;
+        }
+
+        $id = sanitizeString($this->input->post('id'));
+        $username = strtolower(sanitizeString($this->input->post('username')));
+        $name = sanitizeString($this->input->post('name'));
+        $engagement_rate = (float) sanitizeString($this->input->post('engagement_rate'));
+        $followers = (int) normalizeNumber($this->input->post('followers'));
+        $category = sanitizeString($this->input->post('category'));
+        $area = array_filter((array) $this->input->post('area')) ?: [];
+        dd($area, array_map(function ($a) use($id) { return ['area_id' => $a, 'influencer_id' => $id]; }, $area));
+
+        $result = $this->mi->update($id,
+        [
+            'username' => $username,
+            'name' => $name,
+            'engagement_rate' => $engagement_rate,
+            'followers' => $followers,
+            'category_id' => $category,
+        ], $area);
+
+        if (!$result) {
+            http_response_code(500);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 500,
+                'message' => 'Failed to update influencer',
+            ]);
+            return;
+        }
+
+        http_response_code(201);
+        echo json_encode([
+            'status' => TRUE,
+            'statusCode' => 201,
+            'message' => 'Influencer updated successfully',
+        ]);
+        return;
     }
 
     public function destroy() {
@@ -49,8 +143,6 @@ class Influencers extends CI_Controller
             ]);
             return;
         }
-
-        $this->load->model('M_Master', 'mi', TRUE);
 
         $id = sanitizeString($this->input->post('id'));
         $result = $this->mi->destroy($id);
@@ -88,8 +180,6 @@ class Influencers extends CI_Controller
             ]);
             return;
         }
-
-        $this->load->model('M_Master', 'mi', TRUE);
 
         $draw = $this->input->post('draw') ?: 1;
         $length = $this->input->post('length') ?: 10;

@@ -21,6 +21,8 @@
     <noscript>
         <link rel="stylesheet" href="<?= base_url('assets/css/custom.css'); ?>" />
     </noscript>
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/select2/css/select2.min.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/select2-bootstrap4-theme/select2-bootstrap4.min.css') ?>" />
     <?php if (isset($css) && count((array) $css) > 0):
         foreach((array) $css as $c): ?>
             <link rel="stylesheet" href="<?= base_url('assets/' . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $c)) ?>" />
