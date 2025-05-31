@@ -33,6 +33,7 @@ Class Auth extends CI_Controller {
             'status' => TRUE,
             'statusCode' => 200,
             'message' => $result->message,
+            'role' => $result->data->role
         ]);
         return;
     }

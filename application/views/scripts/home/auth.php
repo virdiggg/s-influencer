@@ -16,7 +16,12 @@
                 if (response.status === false) {
                     message.innerHTML = `<label class="text-danger">${response.message}</label>`;
                 } else {
-                    window.location.reload();
+                    if (response.role == 'ADMIN') {
+                        window.location.replace(initURL + 'admin/dashboard');
+                        // window.location.href = initURL + 'admin/dashboard';
+                    } else {
+                        window.location.reload();
+                    }
                 }
             })
             .catch(error => {

@@ -75,17 +75,28 @@ class Authenticated
      * @param string $username
      * @param string $password
      * 
-     * @return null|string
+     * @return object
      */
     public function signIn($username, $password) {
         $this->CI->load->model('setting/M_Users', 'user', TRUE);
         $result = $this->CI->user->authenticate($username, $password);
         if ($result['data'] === null) {
-            return (object) $result;
+            return $this->asObject($result);
         }
 
         $this->setUserdata($result['data']);
-        return (object) $result;
+        return $this->asObject($result);
+    }
+
+    /**
+     * Return the given result as object
+     * 
+     * @param mixed $result
+     * 
+     * @return object
+     */
+    private function asObject($result) {
+        return json_decode(json_encode($result));
     }
 
     /**
