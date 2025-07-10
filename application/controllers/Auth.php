@@ -40,6 +40,6 @@ Class Auth extends CI_Controller {
 
     public function signOut() {
         $this->authenticated->signOut();
-        return redirectBack();
+        return redirect(base_url('admin/auth'));
     }
 }
