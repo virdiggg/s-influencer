@@ -56,7 +56,8 @@
         } else {
             $('.authorized-only').on('click', function(e) {
                 e.preventDefault();
-                $('#authModal').modal('show');
+                // $('#authModal').modal('show');
+                window.location.href = initURL + 'admin/auth';
             });
         }
 

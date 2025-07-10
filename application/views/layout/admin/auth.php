@@ -92,7 +92,12 @@
                         } else {
                             message.innerHTML = `<label class="text-success">Redirecting...</label>`;
                             setTimeout(function() {
-                                window.location.replace(initURL + 'admin/dashboard');
+                                // window.location.replace(initURL + 'admin/dashboard');
+                                if (response.role == 'ADMIN') {
+                                    window.location.replace(initURL + 'admin/dashboard');
+                                } else {
+                                    window.location.href = initURL;
+                                }
                             }, 1000);
                         }
                     })
