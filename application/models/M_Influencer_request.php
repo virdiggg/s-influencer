@@ -186,10 +186,26 @@ Class M_Influencer_request extends CI_model {
             (
                 SELECT u.full_name
                 FROM {$this->users} u
-                WHERE u.username = {$this->table}.created_by
+                WHERE u.username = {$this->table}.approved_by
             ),
             null
-        ) AS created_by_name");
+        ) AS approved_by_name");
+        $this->db->select("COALESCE(
+            (
+                SELECT u.full_name
+                FROM {$this->users} u
+                WHERE u.username = {$this->table}.rejected_by
+            ),
+            null
+        ) AS rejected_by_name");
+        $this->db->select("COALESCE(
+            (
+                SELECT u.full_name
+                FROM {$this->users} u
+                WHERE u.username = {$this->table}.rejected_by
+            ),
+            null
+        ) AS rejected_by_name");
         // PostgreSQL
         // $this->db->select("(
         //     SELECT JSON_AGG(
