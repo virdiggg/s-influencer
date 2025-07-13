@@ -80,20 +80,38 @@ Class M_Master extends CI_model {
         //     WHERE map.influencer_id = inf.id
         // ) AS areas");
         // MySQL
+        // $this->db->select("(
+        //     SELECT JSON_ARRAYAGG(
+        //     JSON_OBJECT(
+        //         'id', map.id,
+        //         'area_id', map.area_id,
+        //         'influencer_id', map.influencer_id,
+        //         'area', area.name
+        //     )
+        //     )
+        //     FROM {$this->mapping} map
+        //     JOIN {$this->areas} area ON area.id = map.area_id
+        //     WHERE map.influencer_id = inf.id
+        //     ORDER BY map.id
+        // ) AS areas");
+        // MySQL MariaDB
         $this->db->select("(
-            SELECT JSON_ARRAYAGG(
-            JSON_OBJECT(
-                'id', map.id,
-                'area_id', map.area_id,
-                'influencer_id', map.influencer_id,
-                'area', area.name
-            )
-            )
+            SELECT CONCAT('[', GROUP_CONCAT(
+                CONCAT(
+                    '{',
+                    '\"id\":', map.id, ',',
+                    '\"area_id\":', map.area_id, ',',
+                    '\"influencer_id\":', map.influencer_id, ',',
+                    '\"area\":\"', area.name, '\"',
+                    '}'
+                )
+            ), ']')
             FROM {$this->mapping} map
             JOIN {$this->areas} area ON area.id = map.area_id
             WHERE map.influencer_id = inf.id
             ORDER BY map.id
-        ) AS areas");
+        )
+        AS areas");
         $this->db->from($this->influencers . ' inf');
 
         if (count($filters) > 0) {
@@ -291,20 +309,38 @@ Class M_Master extends CI_model {
         //     WHERE map.influencer_id = inf.id
         // ) AS areas");
         // MySQL
+        // $this->db->select("(
+        //     SELECT JSON_ARRAYAGG(
+        //     JSON_OBJECT(
+        //         'id', map.id,
+        //         'area_id', map.area_id,
+        //         'influencer_id', map.influencer_id,
+        //         'area', area.name
+        //     )
+        //     )
+        //     FROM {$this->mapping} map
+        //     JOIN {$this->areas} area ON area.id = map.area_id
+        //     WHERE map.influencer_id = inf.id
+        //     ORDER BY map.id
+        // ) AS areas");
+        // MySQL MariaDB
         $this->db->select("(
-            SELECT JSON_ARRAYAGG(
-            JSON_OBJECT(
-                'id', map.id,
-                'area_id', map.area_id,
-                'influencer_id', map.influencer_id,
-                'area', area.name
-            )
-            )
+            SELECT CONCAT('[', GROUP_CONCAT(
+                CONCAT(
+                    '{',
+                    '\"id\":', map.id, ',',
+                    '\"area_id\":', map.area_id, ',',
+                    '\"influencer_id\":', map.influencer_id, ',',
+                    '\"area\":\"', area.name, '\"',
+                    '}'
+                )
+            ), ']')
             FROM {$this->mapping} map
             JOIN {$this->areas} area ON area.id = map.area_id
             WHERE map.influencer_id = inf.id
             ORDER BY map.id
-        ) AS areas");
+        )
+        AS areas");
         $this->db->from($this->influencers . ' inf');
         $this->db->where($where);
         return $this->db->get()->row();

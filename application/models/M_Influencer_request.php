@@ -197,20 +197,37 @@ Class M_Influencer_request extends CI_model {
         //     WHERE map.influencer_id = {$this->table}.id
         // ) AS areas");
         // MySQL
+        // $this->db->select("(
+        //     SELECT JSON_ARRAYAGG(
+        //     JSON_OBJECT(
+        //         'id', map.id,
+        //         'area_id', map.area_id,
+        //         'influencer_id', map.influencer_id,
+        //         'area', area.name
+        //     )
+        //     )
+        //     FROM {$this->mapping} map
+        //     JOIN {$this->areas} area ON area.id = map.area_id
+        //     WHERE map.influencer_id = {$this->table}.id
+        //     ORDER BY map.id
+        // ) AS areas");
+        // MySQL MariaDB
         $this->db->select("(
-            SELECT JSON_ARRAYAGG(
-            JSON_OBJECT(
-                'id', map.id,
-                'area_id', map.area_id,
-                'influencer_id', map.influencer_id,
-                'area', area.name
-            )
-            )
+            SELECT CONCAT('[', GROUP_CONCAT(
+                CONCAT(
+                    '{',
+                    '\"id\":', map.id, ',',
+                    '\"area_id\":', map.area_id, ',',
+                    '\"influencer_id\":', map.influencer_id, ',',
+                    '\"area\":\"', area.name, '\"',
+                    '}'
+                )
+            ), ']')
             FROM {$this->mapping} map
             JOIN {$this->areas} area ON area.id = map.area_id
             WHERE map.influencer_id = {$this->table}.id
-            ORDER BY map.id
-        ) AS areas");
+        )
+        AS areas");
         $this->db->from($this->table);
 
         if (!empty($search)) {

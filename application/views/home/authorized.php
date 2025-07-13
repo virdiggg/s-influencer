@@ -30,7 +30,7 @@
             <div class="col-5 col-sm-4">
                 <div class="form-group show-slider" id="show-slider-engagement">
                     <button type="button" class="btn btn-outline-success btn-block text-left">
-                        Engagement
+                        Engagement Rate
                     </button>
                 </div>
 

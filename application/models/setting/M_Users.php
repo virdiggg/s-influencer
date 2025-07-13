@@ -120,7 +120,7 @@ Class M_Users extends CI_model {
         $this->db->where('username', $username);
         $param['updated_at'] = date('Y-m-d H:i:s');
         if ($isLogin) {
-            $param['last_login'] = date('Y-m-d H:i:s');
+            $param['last_login'] = $param['updated_at'];
         }
         $this->db->update($this->table, $param);
 
