@@ -1,0 +1,149 @@
+<div class="modal fade" id="addCreatorModal" tabindex="-1" role="dialog" aria-labelledby="addCreatorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="form-add-creator" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCreatorModalLabel">Add creators</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="note">Note <span class="text-danger">*</span></label>
+                    <textarea class="form-control form-input" rows="3" placeholder="Note" name="note" id="note" required></textarea>
+                    <input type="hidden" class="form-input" name="influencer_id" id="influencer_id" required />
+                    <input type="hidden" class="form-input" name="username_instagram" id="submit-username_instagram" required />
+                    <input type="hidden" class="form-input" name="followers" id="submit-followers" required />
+                    <input type="hidden" class="form-input" name="engagement_rate" id="submit-engagement_rate" required />
+                    <input type="hidden" class="form-input" name="name" id="submit-name" required />
+                </div>
+                <div class="text-danger" id="message"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn border-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-success" id="btn-submit">Add Creator</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    openNote = (e, id) => {
+        const usernameInstagram = e.dataset.username_instagram;
+        const followers = e.dataset.followers;
+        const engagementRate = e.dataset.engagement_rate;
+        const name = e.dataset.name;
+
+        document.getElementById('influencer_id').value = id;
+        document.getElementById('submit-username_instagram').value = usernameInstagram;
+        document.getElementById('submit-followers').value = followers;
+        document.getElementById('submit-engagement_rate').value = engagementRate;
+        document.getElementById('submit-name').value = name;
+        document.getElementById('note').value = '';
+
+        $('#addCreatorModal').modal('show');
+    }
+
+    document.getElementById('form-add-creator').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        let btn = document.getElementById('btn-submit');
+        let message = document.getElementById('message');
+        message.innerHTML = '';
+        btn.disabled = true;
+
+        fetch(initURL + 'api/influencer/store', {
+                method: 'POST',
+                body: new FormData(this)
+            })
+            .then(response => response.json())
+            .then(response => {
+                if (response.status === false) {
+                    message.innerHTML = `<label class="text-danger">${response.message}</label>`;
+                } else {
+                    $('#addCreatorModal').modal('hide');
+                    showToast(response.message);
+                    states.loadMore = false;
+                    datatables();
+                }
+            })
+            .catch(error => {
+                message.innerHTML = `<label class="text-danger">${error.message}</label>`;
+            })
+            .finally(() => {
+                btn.disabled = false;
+            });
+    });
+</script>
+
+public function store() {
+    if (!$this->authenticated->isAuthenticated()) {
+        http_response_code(401);
+        echo json_encode([
+            'status' => FALSE,
+            'statusCode' => 401,
+            'message' => 'Unauthorized',
+        ]);
+        return;
+    }
+
+    // Input hidden, dinamain ID aja karena gak perlu tampilin error
+    $this->form_validation->set_rules('influencer_id', 'ID', 'required|trim');
+    $this->form_validation->set_rules('username_instagram', 'ID', 'required|trim');
+    $this->form_validation->set_rules('followers', 'ID', 'required|trim');
+    $this->form_validation->set_rules('engagement_rate', 'ID', 'required|trim');
+    $this->form_validation->set_rules('name', 'ID', 'required|trim');
+    $this->form_validation->set_rules('note', 'Note', 'required|trim');
+
+    if ($this->form_validation->run() === FALSE) {
+        http_response_code(422);
+        echo json_encode([
+            'status' => FALSE,
+            'statusCode' => 422,
+            'message' => validation_errors(),
+        ]);
+        return;
+    }
+
+    $this->load->model('M_Influencer_request', 'ir', TRUE);
+
+    $result = $this->ir->create([
+        'influencer_id' => sanitizeString($this->input->post('influencer_id')),
+        'username_instagram' => sanitizeString($this->input->post('username_instagram')),
+        'followers' => normalizeNumber(sanitizeString($this->input->post('followers'))),
+        'engagement_rate' => (float) sanitizeString($this->input->post('engagement_rate')),
+        'name' => sanitizeString($this->input->post('name')),
+        'note' => sanitizeString($this->input->post('note')),
+    ]);
+
+    if (!$result) {
+        http_response_code(500);
+        echo json_encode([
+            'status' => FALSE,
+            'statusCode' => 500,
+            'message' => 'Failed to save data',
+        ]);
+        return;
+    }
+
+    http_response_code(201);
+    echo json_encode([
+        'status' => TRUE,
+        'statusCode' => 201,
+        'message' => 'Data has been saved',
+    ]);
+    return;
+}
+
+public function create($param) {
+    $date = date("Y-m-d H:i:s");
+    $username = getSession("username");
+    $data = array_merge($param, [
+        "created_at" => $date,
+        "created_by" => $username,
+        "updated_at" => $date,
+        "updated_by" => $username,
+    ]);
+    $this->db->insert($this->table, $data);
+    return $this->db->insert_id();
+}

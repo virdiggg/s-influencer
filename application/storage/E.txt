@@ -1,0 +1,317 @@
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Master Influencer</h3>
+        <div class="card-tools">
+            <a class="btn btn-primary" href="<?= base_url('admin/master/influencers/create') ?>"><i class="fas fa-plus"></i> New</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="master-influencer-table" class="table table-bordered table-sm table-striped" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Influencer</th>
+                        <th>Followers</th>
+                        <th>Engagement Rate</th>
+                        <th>Area</th>
+                        <th>Category</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot></tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var endpoint = initURL + 'admin/master/influencers/';
+    var dataTable;
+    var datatables = function(finish) {
+        dataTable = $('#master-influencer-table').DataTable({
+            'responsive': true,
+            'autoWidth': true,
+            'bDestroy': true,
+            // 'stateSave': true,
+            'processing': true,
+            'serverSide': true,
+            'searching': true,
+            'ordering': false,
+            'bInfo': false,
+            'language': {
+                processing: ''
+            },
+            'ajax': {
+                'url': endpoint + 'datatables',
+                'type': 'POST',
+                'data': function(d) {
+                    let search = $('input[type="search"]').val();
+                    // Append to data
+                    d.search = search;
+                },
+                'beforeSend': function() {
+                    $.when($('.loading').remove()).then($('body').prepend('<div class="loading"></div>'));
+                },
+            },
+            'footerCallback': function(row, data, start, end, display) {
+                let api = this.api();
+            },
+            "drawCallback": function(settings) {
+                $('.loading').remove();
+                if (settings.iDraw == 1) {
+                    if (finish) {
+                        finish();
+                    }
+                }
+            },
+            'initComplete': function(settings, json) {
+                // console.log(settings);
+                // console.log(json);
+            },
+            'columns': [
+                {
+                    data: 'no',
+                    className: "text-center"
+                },
+                {
+                    data: 'influencer',
+                },
+                {
+                    data: 'followers',
+                    render: function (data, type, row) {
+                        return formatNumber(data);
+                    }
+                },
+                {
+                    data: 'engagement_rate',
+                    render: function (data, type, row) {
+                        return data + '%';
+                    }
+                },
+                {
+                    data: 'areas',
+                    render: function (data, type, row) {
+                        let areas = [];
+                        try {
+                            areas = JSON.parse(data).map(a => a.area).join(', ');
+                        } catch (e) {
+                            areas = '';
+                        }
+                        return areas;
+                    }
+                },
+                {
+                    data: 'category',
+                },
+                {
+                    data: 'actions',
+                    className: "text-center"
+                },
+            ],
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        datatables();
+    });
+
+</script>
+
+public function index() {
+    if (getSession('role') === 'USER') {
+        return redirect('/');
+    }
+
+    $data = [
+        'title' => $this->title,
+        'view' => 'admin/master/influencers/index',
+        'js' => [
+            'admin/master/influencers/index.php',
+        ],
+    ];
+
+    return $this->load->view('layout/admin/wrapper', $data);
+}
+
+public function datatables() {
+    if (!$this->authenticated->isAuthenticated()) {
+        http_response_code(401);
+        echo json_encode([
+            'status' => FALSE,
+            'statusCode' => 401,
+            'message' => 'Unauthorized',
+            'draw' => 1,
+            'iTotalRecords' => 0,
+            'iTotalDisplayRecords' => 0,
+            'aaData' => [],
+        ]);
+        return;
+    }
+
+    $draw = $this->input->post('draw') ?: 1;
+    $length = $this->input->post('length') ?: 10;
+    $start = $this->input->post('start') ?: 0;
+
+    $search = strtolower(sanitizeString($this->input->post('search')));
+    $area = $this->input->post('area') ? json_decode($this->input->post('area'), true) : [];
+    $category = $this->input->post('category') ? json_decode($this->input->post('category'), true) : [];
+    $er_min = sanitizeString($this->input->post('er_min'));
+    $er_max = sanitizeString($this->input->post('er_max'));
+    $followers_min = sanitizeString($this->input->post('followers_min'));
+    $followers_max = sanitizeString($this->input->post('followers_max'));
+
+    $filters = [
+        'search' => $search ?: null,
+        'area' => $area,
+        'category' => $category,
+        'engagement_rate_bottom' => $er_min ?: 0,
+        'engagement_rate_top' => $er_max ?: null,
+        'followers_bottom' => $followers_min ?: 5000,
+        'followers_top' => $followers_max ?: null,
+    ];
+
+    $result = $this->mi->datatables($length, $start, $filters);
+    $return = [
+        'status' => TRUE,
+        'statusCode' => 200,
+        'draw' => intval($draw),
+        'iTotalRecords' => $result['totalRecords'],
+        'iTotalDisplayRecords' => $result['totalRecords'],
+        'aaData' => $result['data'],
+    ];
+
+    echo json_encode($return);
+    return;
+}
+
+public function datatables($length = 10, $start = 0, $filters = []) {
+    $result = $this->influencers($length, $start, $filters);
+    $countResult = count($result);
+
+    if ($countResult >= $length) {
+        $resultNextPage = $this->influencers($length, $start + $length, $filters);
+        $countResultNextPage = count($resultNextPage);
+        if ($countResultNextPage >= $length) {
+            $totalRecords = $start + (2 * $length);
+        } else {
+            $totalRecords = $start + $length + $countResultNextPage;
+        }
+
+        unset($resultNextPage, $countResultNextPage);
+    } else {
+        $totalRecords = $start + $countResult;
+    }
+
+    unset($countResult);
+    return [
+        'totalRecords' => $totalRecords,
+        'data' => $result ? $this->parse($result, $start) : [],
+    ];
+}
+
+public function influencers($limit = null, $offset = null, $filters = []) {
+    $this->db->select("inf.id, inf.name, inf.username_instagram, inf.category_id, inf.followers, inf.engagement_rate,
+    COALESCE(
+        (
+            SELECT cat.name FROM {$this->categories} cat WHERE cat.id = inf.category_id
+        ),
+        null
+    ) AS category");
+    $this->db->select("(
+        SELECT CONCAT('[', GROUP_CONCAT(
+            CONCAT(
+                '{',
+                '\"id\":', map.id, ',',
+                '\"area_id\":', map.area_id, ',',
+                '\"influencer_id\":', map.influencer_id, ',',
+                '\"area\":\"', area.name, '\"',
+                '}'
+            )
+        ), ']')
+        FROM {$this->mapping} map
+        JOIN {$this->areas} area ON area.id = map.area_id
+        WHERE map.influencer_id = inf.id
+        ORDER BY map.id
+    )
+    AS areas");
+    $this->db->from($this->influencers . ' inf');
+
+    if (count($filters) > 0) {
+        if (!empty($filters['search'])) {
+            $this->db->group_start();
+            $this->db->like('LOWER(inf.name)', $filters['search']);
+            $this->db->or_like('LOWER(inf.username_instagram)', $filters['search']);
+            $this->db->group_end();
+        }
+
+        if (count($filters['category']) > 0) {
+            $this->db->where_in('inf.category_id', $filters['category']);
+        }
+
+        if (!empty($filters['engagement_rate_bottom']) && !empty($filters['engagement_rate_top'])) {
+            $this->db->where('inf.engagement_rate >', $filters['engagement_rate_bottom'])
+                ->where('inf.engagement_rate <=', $filters['engagement_rate_top']);
+        }
+
+        if (!empty($filters['followers_bottom']) && !empty($filters['followers_top'])) {
+            if ($filters['followers_top'] == 1000000) {
+                $this->db->where('inf.followers >=', $filters['followers_bottom']);
+            } else {
+                $this->db->where('inf.followers >', $filters['followers_bottom'])
+                    ->where('inf.followers <=', $filters['followers_top']);
+            }
+        }
+
+        if (count($filters['area']) > 0) {
+            $area = "'" . implode("', '", $filters['area']) . "'";
+            $this->db->where("EXISTS (
+                SELECT 1
+                FROM {$this->mapping} area
+                WHERE area.influencer_id = inf.id
+                AND area.area_id IN ({$area})
+            )");
+        }
+    }
+
+    if (!is_null($limit) && !is_null($offset)) {
+        $this->db->limit($limit, $offset);
+    }
+
+    $this->db->order_by('inf.followers', 'DESC');
+    $this->db->order_by('inf.engagement_rate', 'DESC');
+    $this->db->order_by('inf.name', 'ASC');
+    return $this->db->get()->result();
+}
+
+public function parse($result, $start = 0) {
+    $isAdmin = getSession('role') === 'ADMIN';
+    $isAuthenticated = $this->authenticated->isAuthenticated();
+
+    foreach ($result as $r) {
+        $start++;
+        $r->no = $start;
+        $actions = $influencer = '';
+
+        if ($isAuthenticated) {
+            if ($isAdmin) {
+                $influencer = "<a href=\"https://www.instagram.com/{$r->username_instagram}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-truncate\" style=\"font-size: 16px;\">@{$r->username_instagram}</a> - {$r->name}";
+                $edit = '<a href="' . base_url('admin/master/influencers/edit?id=' . $r->id) . '" class="btn btn-sm btn-link text-warning">
+                    <i class="fas fa-edit"></i></a>';
+                // $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(this, ' . $r->id . ')"><i class="fas fa-trash"></i></button>';
+                $delete = '';
+                $actions = $edit . ' ' . $delete;
+            } else {
+                $actions = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showDetail(' . $r->id . ')">Detail</button>';
+            }
+        } else {
+            $actions = '<button type="button" class="btn btn-primary btn-sm authorized" onclick="showLoginModal()">Detail</button>';
+        }
+
+        $r->influencer = $influencer;
+        $r->actions = $actions;
+    }
+
+    return $result;
+}

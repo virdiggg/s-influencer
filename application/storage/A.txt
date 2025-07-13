@@ -1,0 +1,617 @@
+<section class="content">
+    <div class="container">
+        <h2 class="text-center display-4"></h2>
+        <div class="row">
+    <div class="col-md-10 offset-md-1">
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <select id="category" class="form-control" multiple placeholder="Select a category or enter keywords" style="width: 100%;"></select>
+                </div>
+            </div>
+
+            <div class="col-5 col-sm-4">
+                <div class="form-group show-slider" id="show-slider-follower">
+                    <button type="button" class="btn btn-outline-success btn-block text-left">
+                        Followers
+                    </button>
+                </div>
+
+                <div class="dropdown-row" style="display: none;">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="p-3 bg-white rounded border shadow-sm">
+                                <div class="slider-green">
+                                    <input type="text" id="slider-follower" class="slider form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-5 col-sm-4">
+                <div class="form-group show-slider" id="show-slider-engagement">
+                    <button type="button" class="btn btn-outline-success btn-block text-left">
+                        Engagement
+                    </button>
+                </div>
+
+                <div class="dropdown-row" style="display: none;">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="p-3 bg-white rounded border shadow-sm">
+                                <div class="slider-green">
+                                    <input type="text" id="slider-engagement" class="slider form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-2">
+                <div class="form-group">
+                    <select id="area" class="form-control" multiple placeholder="Area" style="width: 100%;"></select>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-2">
+                <button type="button" class="btn btn-success btn-block" id="btn-show">Show Results</button>
+            </div>
+        </div>
+    </div>
+</div>
+        <div class="row d-none" id="result-container">
+    <div class="col-12">
+        <div class="card card-success">
+            <div class="card-body">
+                <div class="row align-items-center mb-2 border-bottom" id="result-body">
+                    <div class="col-1"></div>
+                    <div class="col-4">Influencer</div>
+                    <div class="col-2">Followers</div>
+                    <div class="col-2">Engagement Rate</div>
+                    <div class="col-2">Area</div>
+                    <div class="col-1"></div>
+                </div>
+            </div>
+            <div class="card-footer" id="card-footer">
+            </div>
+        </div>
+    </div>
+</div>
+        <input type="hidden" value="0" id="startCounting" name="startCounting" required />
+
+        <div class="timeline" id="show-logs-body"></div>
+        <div class="text-center"><label id="loading"></label></div>
+    </div>
+</section>
+
+
+<script type="text/javascript">
+    var startCounting = document.getElementById('startCounting').value;
+    let sliderValues = {};
+    let states = {
+        loadMore: false,
+    }
+
+    const followersTop = 10000;
+    const followersBottom = 5000;
+    const engagementRateTop = 20;
+    const engagementRateBottom = 0;
+
+    $(document).on('click', function(e) {
+        const $target = $(e.target);
+        const isInsideDropdown = $target.closest('.dropdown-row, .show-slider').length > 0;
+
+        if (!isInsideDropdown) {
+            $('.dropdown-row:visible').slideUp(150);
+        }
+    });
+
+    window.onpopstate = function(event) {
+        const params = new URLSearchParams(location.search);
+
+        $('#category').val(params.getAll('category[]')).trigger('change');
+        $('#area').val(params.getAll('area[]')).trigger('change');
+
+        const followers_min = parseInt(params.get('followers_min') || followersBottom);
+        const followers_max = parseInt(params.get('followers_max') || followersTop);
+        const er_min = parseFloat(params.get('er_min') || engagementRateBottom);
+        const er_max = parseFloat(params.get('er_max') || engagementRateTop);
+
+        const $followerSlider = $('#slider-follower');
+        const $erSlider = $('#slider-engagement');
+
+        ensureSliderInitialized($followerSlider, 'slider-follower', [followers_min, followers_max]);
+        ensureSliderInitialized($erSlider, 'slider-engagement', [er_min, er_max]);
+
+        $followerSlider.slider('setValue', [followers_min, followers_max]);
+        $erSlider.slider('setValue', [er_min, er_max]);
+
+        startCounting = 0;
+        fetchResultsCount();
+        datatables();
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (isLoggedIn) {
+            fetchCategories();
+            fetchAreas();
+            if (location.search) {
+                window.onpopstate();
+            }
+        } else {
+            $('.authorized-only').on('click', function(e) {
+                e.preventDefault();
+                window.location.href = initURL + 'admin/auth';
+            });
+        }
+    });
+
+    datatables = () => {
+        const category = $('#category').val();
+        const area = $('#area').val();
+        const [followers_min, followers_max] = $('#slider-follower').data('slider')?.getValue() || [followersBottom, followersTop];
+        const [er_min, er_max] = $('#slider-engagement').data('slider')?.getValue() || [engagementRateBottom, engagementRateTop];
+
+        let formBody = new FormData();
+
+        let categoryJSON = JSON.stringify(category);
+        let areaJSON = JSON.stringify(area);
+
+        formBody.append('followers_min', followers_min);
+        formBody.append('followers_max', followers_max);
+        formBody.append('er_min', er_min);
+        formBody.append('er_max', er_max);
+        formBody.append('start', startCounting);
+        formBody.append('category', categoryJSON);
+        formBody.append('area', areaJSON);
+
+        document.getElementById('loading').innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+        document.getElementById('result-container').classList.add('d-none');
+
+        fetch(initURL + 'api/master/influencers', {
+                method: 'POST',
+                body: formBody
+            })
+            .then(res => res.json())
+            .then(response => {
+                let html = ``;
+                const resultBody = document.getElementById('result-body');
+
+                if (response.statusCode == 200) {
+                    document.getElementById('result-container').classList.remove('d-none');
+
+                    response.data.forEach((val) => {
+                        let areas = [];
+                        try {
+                            areas = JSON.parse(val.areas).map(a => a.area).join(', ');
+                        } catch (e) {
+                            areas = '';
+                        }
+
+                        html += `<div class="row align-items-center mb-2 dynamic-row">`;
+
+                        html += `<div class="col-1"><!-- <input type="checkbox" class="icheck" /> --></div>`;
+                        html += `<div class="col-4">
+                            <div class="d-flex align-items-center w-100">
+                                <div>
+                                    <img src="<?= base_url('assets/no-image.jpg') ?>" alt="user-picture-${val.username_instagram}" loading="lazy"
+                                        crossorigin="anonymous" class="rounded-circle" width="40" height="40"
+                                        onerror="this.src='<?= base_url('assets/no-image.png') ?>'" />
+                                </div>
+                                <div class="d-flex flex-column ml-2 text-truncate">
+                                    <div class="d-flex align-items-center" style="height: 20px;">
+                                        <span class="mr-1">
+                                            <a href="https://www.instagram.com/${val.username_instagram}" target="_blank"
+                                                rel="noopener noreferrer" class="text-truncate" style="font-size: 16px;">
+                                                @${val.username_instagram}</a>
+                                        </span>
+                                    </div>
+                                    <span class="text-muted" style="font-size: 14px;">${val.name}</span>
+                                </div>
+                            </div>
+                        </div>`;
+
+                        html += `<div class="col-2">${formatNumber(val.followers)}</div>`;
+                        html += `<div class="col-2">${val.engagement_rate}%</div>`;
+                        html += `<div class="col-2">${areas}</div>`;
+                        html += `<div class="col-1 text-right">
+                            <button class="btn btn-sm btn-link mr-1 text-secondary" onclick="openNote(this, '${val.id}')"
+                                data-username_instagram="${val.username_instagram}"
+                                data-followers="${val.followers}"
+                                data-engagement_rate="${val.engagement_rate}"
+                                data-name="${val.name}"
+                                title="Add to List"><i class="fas fa-folder-plus"></i></button>
+                        </div>`;
+
+                        html += `</div>`; // End div row
+                    });
+
+                    if (states.loadMore === false) {
+                        const dynamicRows = document.querySelectorAll('.dynamic-row');
+                        dynamicRows.forEach(row => row.remove());
+                    } else {
+                        startCounting += response.data.length;
+                    }
+
+                    const tempContainer = document.createElement('div');
+                    tempContainer.innerHTML = html;
+
+                    const fragment = document.createDocumentFragment();
+                    while (tempContainer.firstChild) {
+                        fragment.appendChild(tempContainer.firstChild);
+                    }
+
+                    const container = resultBody.parentNode;
+                    const nextSibling = resultBody.nextSibling;
+                    container.insertBefore(fragment, nextSibling);
+                }
+
+                const cardFooter = document.getElementById('card-footer');
+
+                if (response.data.length == 10) {
+                    if (!cardFooter.querySelector('#btn-load-more')) {
+                        const html = `<div class="col-12 text-center">
+                            <button class="btn btn-outline-success" id="btn-load-more">Load More</button>
+                        </div>`;
+                        cardFooter.insertAdjacentHTML('beforeend', html);
+                    } else {
+                        document.getElementById('btn-load-more').classList.remove('d-none');
+                    }
+                } else {
+                    if (cardFooter.querySelector('#btn-load-more')) {
+                        document.getElementById('btn-load-more').classList.add('d-none');
+                    }
+                }
+
+                pushHistoryFromForm(formBody);
+            }).catch(err => {
+                // console.log(err);
+            }).finally(() => {
+                document.getElementById('loading').innerHTML = '';
+                document.getElementById('btn-load-more').innerHTML = 'Load More';
+                document.getElementById('btn-load-more').disabled = false;
+            });
+    }
+
+    document.getElementById('btn-show').addEventListener('click', function (e) {
+        e.preventDefault();
+        startCounting = 0;
+        states.loadMore = false;
+        datatables();
+    });
+
+    document.getElementById('result-container').addEventListener('click', function (e) {
+        if (e.target && e.target.id === 'btn-load-more') {
+            e.preventDefault();
+
+            e.target.disabled = true;
+            e.target.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
+
+            states.loadMore = true;
+            datatables();
+        }
+    });
+
+    $('.show-slider').on('click', function(e) {
+        e.stopPropagation();
+
+        const id = $(this).attr('id');
+        const $dropdown = $(this).siblings('.dropdown-row');
+        const $slider = $dropdown.find('.slider');
+        const sliderId = $slider.attr('id');
+
+        // Close others
+        $('.dropdown-row').not($dropdown).slideUp(150);
+
+        $dropdown.slideToggle(150, function() {
+            if (!$slider.hasClass('slider-initialized')) {
+                let min = 0;
+                let max = 100;
+                let step = 1;
+                let savedVal = sliderId === 'slider-follower' ? [followersBottom, followersTop] : [engagementRateBottom, engagementRateTop];
+
+                if (sliderValues[id]) {
+                    savedVal = sliderValues[id];
+                }
+
+                if (sliderId === 'slider-follower') {
+                    min = followersBottom;
+                    max = 1000000;
+                    step = followersBottom;
+                }
+
+                $slider.slider({
+                    tooltip: 'show',
+                    min: min,
+                    max: max,
+                    step: step,
+                    value: savedVal
+                }).addClass('slider-initialized');
+
+                $slider.on('slideStop', function(e) {
+                    sliderValues[id] = e.value;
+                });
+            }
+        });
+    });
+
+    $('#category, #area').on('change', fetchResultsCount);
+    $('#slider-follower, #slider-engagement').on('slideStop', fetchResultsCount);
+    $('#check-all').on('change', function() {
+        const isChecked = $(this).is(':checked');
+        $('#result-header input.icheck').prop('checked', isChecked);
+    });
+
+    function ensureSliderInitialized($slider, id, defaultValue) {
+        if (!$slider.hasClass('slider-initialized')) {
+            let min = 0;
+            let max = 100;
+            let step = 1;
+            let savedVal = defaultValue;
+
+            if (sliderValues[id]) {
+                savedVal = sliderValues[id];
+            }
+
+            if ($slider.attr('id') === 'slider-follower') {
+                min = followersBottom;
+                max = 1000000;
+                step = followersBottom;
+            }
+
+            $slider.slider({
+                tooltip: 'show',
+                min: min,
+                max: max,
+                step: step,
+                value: savedVal
+            }).addClass('slider-initialized');
+
+            $slider.on('slideStop', function(e) {
+                sliderValues[id] = e.value;
+            });
+        }
+    }
+
+    function fetchResultsCount() {
+        const category = $('#category').val();
+        const area = $('#area').val();
+        const [followers_min, followers_max] = $('#slider-follower').data('slider')?.getValue() || [followersBottom, followersTop];
+        const [er_min, er_max] = $('#slider-engagement').data('slider')?.getValue() || [engagementRateBottom, engagementRateTop];
+
+        let formBody = new FormData();
+
+        let categoryJSON = JSON.stringify(category);
+        let areaJSON = JSON.stringify(area);
+
+        formBody.append('followers_min', followers_min);
+        formBody.append('followers_max', followers_max);
+        formBody.append('er_min', er_min);
+        formBody.append('er_max', er_max);
+        formBody.append('category', categoryJSON);
+        formBody.append('area', areaJSON);
+
+        fetch(initURL + 'api/master/counter', {
+                method: 'POST',
+                body: formBody
+            })
+            .then(res => res.json())
+            .then(response => {
+                const count = response.count || 0;
+                $('#btn-show').text(`Show ${count.toLocaleString()} Results`);
+            })
+            .catch(err => {
+                console.error(err);
+                $('#btn-show').text(`Show 0 Results`);
+            });
+    }
+
+    fetchCategories = () => {
+        fetch(initURL + 'api/master/categories', {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(response => {
+                let data = response.data;
+                let html = '';
+                data.forEach((val, key) => {
+                    html += `<option value="${val.id}">${val.name}</option>`;
+                });
+
+                if ($('#category').hasClass("select2-hidden-accessible")) {
+                    $('#category').select2('destroy');
+                }
+                $('#category').html(html);
+                $('#category').select2({
+                    theme: 'bootstrap4',
+                    placeholder: 'Select a category or enter keywords'
+                });
+            })
+            .catch(error => {
+                // console.error('Error:', error);
+            })
+            .finally(() => {});
+    }
+
+    fetchAreas = () => {
+        fetch(initURL + 'api/master/areas', {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(response => {
+                let data = response.data;
+                let html = '';
+                data.forEach((val, key) => {
+                    html += `<option value="${val.id}">${val.name}</option>`;
+                });
+
+                if ($('#area').hasClass("select2-hidden-accessible")) {
+                    $('#area').select2('destroy');
+                }
+                $('#area').html(html);
+                $('#area').select2({
+                    theme: 'bootstrap4',
+                    placeholder: 'Area'
+                });
+            })
+            .catch(error => {
+                // console.error('Error:', error);
+            })
+            .finally(() => {});
+    }
+</script>
+
+
+
+
+
+    public function datatables() {
+        if (!$this->authenticated->isAuthenticated()) {
+            http_response_code(401);
+            echo json_encode([
+                'status' => FALSE,
+                'statusCode' => 401,
+                'message' => 'Unauthorized',
+                'draw' => 1,
+                'iTotalRecords' => 0,
+                'iTotalDisplayRecords' => 0,
+                'aaData' => [],
+            ]);
+            return;
+        }
+
+        $this->load->model('M_Influencer_request', 'ir', TRUE);
+
+        $draw = $this->input->post('draw') ?: 1;
+        $length = $this->input->post('length') ?: 10;
+        $start = $this->input->post('start') ?: 0;
+        $search = $this->input->post('search') ? strtolower($this->input->post('search')) : null;
+        $result = $this->ir->datatables($length, $start, $search);
+        $return = [
+            'status' => TRUE,
+            'statusCode' => 200,
+            'draw' => intval($draw),
+            'iTotalRecords' => $result['totalRecords'],
+            'iTotalDisplayRecords' => $result['totalRecords'],
+            'aaData' => $result['data'],
+        ];
+
+        echo json_encode($return);
+        return;
+    }
+
+    public function datatables($length = 10, $start = 0, $search = NULL) {
+        $result = $this->queryDatatables($length, $start, $search);
+        $countResult = count($result);
+
+        if ($countResult >= $length) {
+            $resultNextPage = $this->queryDatatables($length, $start + $length, $search);
+            $countResultNextPage = count($resultNextPage);
+            if ($countResultNextPage >= $length) {
+                $totalRecords = $start + (2 * $length);
+            } else {
+                $totalRecords = $start + $length + $countResultNextPage;
+            }
+
+            unset($resultNextPage, $countResultNextPage);
+        } else {
+            $totalRecords = $start + $countResult;
+        }
+
+        unset($countResult);
+        return [
+            'totalRecords' => $totalRecords,
+            'data' => $result ? $this->parse($result, $start) : [],
+        ];
+    }
+
+    public function parse($result, $start = 0) {
+        $isAdmin = getSession('role') === 'ADMIN';
+
+        foreach ($result as $r) {
+            $start++;
+            $r->no = $start;
+            $approve = $reject = $delete = $log = '';
+
+            if ($isAdmin) {
+                if ($r->rejected_at === null && $r->approved_at === null) {
+                    $approve = '<button type="button" class="btn btn-sm btn-link text-success" onclick="openApprove(this, ' . $r->id . ')"
+                        data-note="' . $r->note . '" data-username_instagram="' . $r->username_instagram . '"
+                        data-followers="' . $r->followers . '" data-engagement_rate="' . $r->engagement_rate . '"
+                        data-name="' . $r->name . '">
+                        <i class="fas fa-check"></i></button>';
+                    $reject = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openReject(this, ' . $r->id . ')"
+                        data-note="' . $r->note . '" data-username_instagram="' . $r->username_instagram . '"
+                        data-followers="' . $r->followers . '" data-engagement_rate="' . $r->engagement_rate . '"
+                        data-name="' . $r->name . '">
+                        <i class="fas fa-times"></i></button>';
+                }
+            } else {
+                if (!$r->rejected_at && !$r->approved_at) {
+                    $delete = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openDelete(this, ' . $r->id . ')"><i class="fas fa-trash"></i></button>';
+                }
+            }
+
+            $log = '<button type="button" class="btn btn-sm btn-link text-secondary" title="Log" onclick="openLog(this, ' . $r->id . ', &apos;' . $r->username_instagram . '&apos;)"><i class="fas fa-eye"></i></button>';
+            $r->influencer = "<a href=\"https://www.instagram.com/{$r->username_instagram}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-truncate\" style=\"font-size: 16px;\">@{$r->username_instagram}</a> - {$r->name}";
+            $r->areas = join(', ', array_column(json_decode($r->areas ?: '[]', true), 'area'));
+            $r->actions = $approve . $reject . $log . $delete;
+        }
+
+        return $result;
+    }
+
+    public function queryDatatables($length = 10, $start = 0, $search = NULL) {
+        $this->db->select("id, influencer_id, name, username_instagram, followers,
+            engagement_rate, note, created_by, created_at, approved_by, approved_at,
+            rejected_by, rejected_at, reject_note");
+        $this->db->select("(
+            CASE
+                WHEN rejected_by IS NOT NULL THEN 'Rejected'
+                WHEN approved_by IS NOT NULL THEN 'Approved'
+                ELSE 'New Request'
+            END
+        ) AS status");
+        $this->db->select("(
+            SELECT CONCAT('[', GROUP_CONCAT(
+                CONCAT(
+                    '{',
+                    '\"id\":', map.id, ',',
+                    '\"area_id\":', map.area_id, ',',
+                    '\"influencer_id\":', map.influencer_id, ',',
+                    '\"area\":\"', area.name, '\"',
+                    '}'
+                )
+            ), ']')
+            FROM {$this->mapping} map
+            JOIN {$this->areas} area ON area.id = map.area_id
+            WHERE map.influencer_id = {$this->table}.id
+        )
+        AS areas");
+        $this->db->from($this->table);
+
+        if (!empty($search)) {
+            $this->db->group_start();
+                $this->db->like('LOWER(name)', $search);
+                $this->db->or_like('LOWER(username_instagram)', $search);
+            $this->db->group_end();
+        }
+
+        $this->db->group_start();
+            $this->db->where('deleted_by IS NULL');
+            $this->db->where('deleted_at IS NULL');
+        $this->db->group_end();
+
+        $this->db->limit($length, $start);
+        $this->db->order_by('created_at', 'DESC');
+        $query = $this->db->get();
+        $result = $query->result();
+
+        $query->free_result();
+        $this->db->close();
+
+        return $result;
+    }
