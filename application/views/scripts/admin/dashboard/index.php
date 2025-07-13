@@ -46,7 +46,7 @@
                 let html = ``;
                 if (response.statusCode == 200) {
                     if (response.data.length == 0) {
-                        html += `<div class="row"><div class="col-12 text-center">No data found.</div></div>`;
+                        html += `<div class="row"><div class="col-12 text-center">No request found.</div></div>`;
                     } else {
                         response.data.forEach((val, index) => {
                             html += `<div class="row border-bottom">`;

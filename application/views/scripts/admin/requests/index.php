@@ -75,6 +75,9 @@
                     }
                 },
                 {
+                    data: 'created_by_name',
+                },
+                {
                     data: 'actions',
                     className: "text-center"
                 },

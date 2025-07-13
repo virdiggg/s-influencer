@@ -14,6 +14,7 @@
                         <th>Area</th>
                         <th>Note</th>
                         <th>Status</th>
+                        <th>Requested By</th>
                         <th></th>
                     </tr>
                 </thead>

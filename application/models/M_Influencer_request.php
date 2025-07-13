@@ -182,6 +182,14 @@ Class M_Influencer_request extends CI_model {
                 ELSE 'New Request'
             END
         ) AS status");
+        $this->db->select("COALESCE(
+            (
+                SELECT u.full_name
+                FROM {$this->users} u
+                WHERE u.username = {$this->table}.created_by
+            ),
+            null
+        ) AS created_by_name");
         // PostgreSQL
         // $this->db->select("(
         //     SELECT JSON_AGG(
