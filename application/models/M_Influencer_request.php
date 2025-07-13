@@ -256,14 +256,14 @@ Class M_Influencer_request extends CI_model {
     public function approve($id) {
         return $this->update($id, [
             'approved_by' => getSession('username'),
-            'approved_at' => getMicroTimeDateTime(),
+            'approved_at' => date("Y-m-d H:i:s"),
         ]);
     }
 
     public function reject($id, $reason) {
         return $this->update($id, [
             'rejected_by' => getSession('username'),
-            'rejected_at' => getMicroTimeDateTime(),
+            'rejected_at' => date("Y-m-d H:i:s"),
             'reject_note' => $reason,
         ]);
     }
@@ -271,7 +271,7 @@ Class M_Influencer_request extends CI_model {
     public function destroy($id) {
         return $this->update($id, [
             'deleted_by' => getSession('username'),
-            'deleted_at' => getMicroTimeDateTime(),
+            'deleted_at' => date("Y-m-d H:i:s"),
         ]);
     }
 

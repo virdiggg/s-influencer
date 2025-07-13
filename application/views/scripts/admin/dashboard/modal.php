@@ -30,10 +30,7 @@
                     <label for="note">Note</label>
                     <textarea class="form-control" rows="3" placeholder="Note" name="note" id="note" readonly></textarea>
                 </div>
-                <div class="form-group" id="reject-row">
-                    <label for="reject_note">Reason</label>
-                    <textarea class="form-control" rows="3" placeholder="Reason" name="reject_note" id="reject_note" ></textarea>
-                </div>
+                <div class="form-group" id="reject-row"></div>
                 <div class="text-danger" id="message"></div>
             </div>
             <div class="modal-footer">
