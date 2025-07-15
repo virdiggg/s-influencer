@@ -59,7 +59,7 @@
                                 data-username_instagram="${val.username_instagram}"
                                 data-followers="${val.followers}"
                                 data-engagement_rate="${val.engagement_rate}"
-                                data-name="${val.name}">
+                                data-name="${val.name}" data-requested_by="${val.created_by_name}">
                                 <i class="fas fa-check"></i>
                             </button>
                             <button class="btn btn-sm btn-link text-danger" title="Approve"
@@ -68,7 +68,7 @@
                                 data-username_instagram="${val.username_instagram}"
                                 data-followers="${val.followers}"
                                 data-engagement_rate="${val.engagement_rate}"
-                                data-name="${val.name}">
+                                data-name="${val.name}" data-requested_by="${val.created_by_name}">
                                 <i class="fas fa-times"></i>
                             </button></div>`;
 

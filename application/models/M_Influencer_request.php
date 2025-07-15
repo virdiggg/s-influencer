@@ -18,6 +18,14 @@ Class M_Influencer_request extends CI_model {
     public function getToDoList() {
         return $this->db->select('id, influencer_id, name, username_instagram, followers,
             engagement_rate, note, created_by, created_at')
+            ->select("COALESCE(
+                (
+                    SELECT u.full_name
+                    FROM {$this->users} u
+                    WHERE u.username = {$this->table}.created_by
+                ),
+                null
+            ) AS created_by_name")
             ->from($this->table)
             ->group_start()
                 ->where('approved_by IS NULL')
