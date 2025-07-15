@@ -264,6 +264,10 @@ Class M_Influencer_request extends CI_model {
             $this->db->group_end();
         }
 
+        if (getSession('role') === 'USER') {
+            $this->db->where('created_by', getSession('username'));
+        }
+
         $this->db->group_start();
             $this->db->where('deleted_by IS NULL');
             $this->db->where('deleted_at IS NULL');
