@@ -151,12 +151,12 @@ Class M_Influencer_request extends CI_model {
                     $approve = '<button type="button" class="btn btn-sm btn-link text-success" onclick="openApprove(this, ' . $r->id . ')"
                         data-note="' . $r->note . '" data-username_instagram="' . $r->username_instagram . '"
                         data-followers="' . $r->followers . '" data-engagement_rate="' . $r->engagement_rate . '"
-                        data-name="' . $r->name . '">
+                        data-name="' . $r->name . '" data-requested_by="' . $r->created_by_name . '">
                         <i class="fas fa-check"></i></button>';
                     $reject = '<button type="button" class="btn btn-sm btn-link text-danger" onclick="openReject(this, ' . $r->id . ')"
                         data-note="' . $r->note . '" data-username_instagram="' . $r->username_instagram . '"
                         data-followers="' . $r->followers . '" data-engagement_rate="' . $r->engagement_rate . '"
-                        data-name="' . $r->name . '">
+                        data-name="' . $r->name . '" data-requested_by="' . $r->created_by_name . '">
                         <i class="fas fa-times"></i></button>';
                 }
             } else {

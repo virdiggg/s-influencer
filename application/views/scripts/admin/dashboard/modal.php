@@ -31,6 +31,10 @@
                     <textarea class="form-control" rows="3" placeholder="Note" name="note" id="note" readonly></textarea>
                 </div>
                 <div class="form-group" id="reject-row"></div>
+                <div class="form-group">
+                    <label for="request_by">Requested By</label>
+                    <textarea class="form-control" rows="3" placeholder="Requested By" name="request_by" id="request_by" readonly></textarea>
+                </div>
                 <div class="text-danger" id="message"></div>
             </div>
             <div class="modal-footer">
@@ -47,6 +51,7 @@
         const engagementRate = e.dataset.engagement_rate;
         const name = e.dataset.name;
         const note = e.dataset.note;
+        const requested_by = e.dataset.requested_by;
 
         document.getElementById('row_id').value = id;
         document.getElementById('username_instagram').value = usernameInstagram;
@@ -54,6 +59,7 @@
         document.getElementById('engagement_rate').value = engagementRate;
         document.getElementById('name').value = name;
         document.getElementById('note').value = note;
+        document.getElementById('requested_by').value = requested_by;
         document.getElementById('type_action').value = 'approve';
         document.getElementById('approveRequestModalLabel').textContent ='Approve Influencer Request';
         document.getElementById('reject-row').innerHTML = '';
@@ -67,6 +73,7 @@
         const engagementRate = e.dataset.engagement_rate;
         const name = e.dataset.name;
         const note = e.dataset.note;
+        const requested_by = e.dataset.requested_by;
 
         document.getElementById('row_id').value = id;
         document.getElementById('username_instagram').value = usernameInstagram;
@@ -74,6 +81,7 @@
         document.getElementById('engagement_rate').value = engagementRate;
         document.getElementById('name').value = name;
         document.getElementById('note').value = note;
+        document.getElementById('requested_by').value = requested_by;
         document.getElementById('type_action').value = 'reject';
         document.getElementById('approveRequestModalLabel').textContent ='Reject Influencer Request';
         document.getElementById('reject-row').innerHTML = `<label for="reject_note">Reason</label><textarea class="form-control" rows="3" placeholder="Reason" name="reject_note" id="reject_note" required></textarea>`;
