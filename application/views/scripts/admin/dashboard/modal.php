@@ -32,8 +32,8 @@
                 </div>
                 <div class="form-group" id="reject-row"></div>
                 <div class="form-group">
-                    <label for="request_by">Requested By</label>
-                    <textarea class="form-control" rows="3" placeholder="Requested By" name="request_by" id="request_by" readonly></textarea>
+                    <label for="requested_by">Requested By</label>
+                    <input type="text" class="form-control" placeholder="Requested By" name="requested_by" id="requested_by" readonly />
                 </div>
                 <div class="text-danger" id="message"></div>
             </div>
