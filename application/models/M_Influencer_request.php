@@ -62,7 +62,9 @@ Class M_Influencer_request extends CI_model {
             "updated_by" => $username,
         ]);
         $this->db->insert($this->table, $data);
-        return $this->find($this->db->insert_id());
+        $res = $this->find($this->db->insert_id());
+        $this->insertLog($res->id, "New Request", $username, $date);
+        return $res;
     }
 
     public function update($id, $param) {
@@ -278,25 +280,34 @@ Class M_Influencer_request extends CI_model {
     }
 
     public function approve($id) {
-        return $this->update($id, [
+        $param = [
             'approved_by' => getSession('username'),
             'approved_at' => date("Y-m-d H:i:s"),
-        ]);
+        ];
+        $res = $this->update($id, $param);
+        $this->insertLog($id, 'Approved', $param['approved_by'], $param['approved_at']);
+        return $res;
     }
 
     public function reject($id, $reason) {
-        return $this->update($id, [
+        $param = [
             'rejected_by' => getSession('username'),
             'rejected_at' => date("Y-m-d H:i:s"),
             'reject_note' => $reason,
-        ]);
+        ];
+        $res = $this->update($id, $param);
+        $this->insertLog($id, 'Rejected', $param['rejected_by'], $param['rejected_at']);
+        return $res;
     }
 
     public function destroy($id) {
-        return $this->update($id, [
+        $param = [
             'deleted_by' => getSession('username'),
             'deleted_at' => date("Y-m-d H:i:s"),
-        ]);
+        ];
+        $res = $this->update($id, $param);
+        $this->insertLog($id, 'Deleted', $param['deleted_by'], $param['deleted_at']);
+        return $res;
     }
 
     public function logs($id) {
@@ -310,5 +321,14 @@ Class M_Influencer_request extends CI_model {
             ) AS note")
             ->from($this->logs)
             ->where('request_id', $id)->order_by('created_at', 'ASC')->get()->result();
+    }
+
+    public function insertLog($requestId, $label, $actor, $date = null) {
+        $this->db->insert($this->logs, [
+            'created_by' => $actor,
+            'created_at' => $date ? $date : date("Y-m-d H:i:s"),
+            'label' => $label,
+            'request_id' => $requestId,
+        ]);
     }
 }
