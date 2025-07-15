@@ -7,6 +7,7 @@ Class M_Influencer_request extends CI_model {
     private $categories = "ms_categories";
     private $influencers = "ms_influencers";
     private $mapping = "influencer_mappings";
+    private $users = "users";
 
     private $primary = "id";
 
@@ -204,10 +205,10 @@ Class M_Influencer_request extends CI_model {
             (
                 SELECT u.full_name
                 FROM {$this->users} u
-                WHERE u.username = {$this->table}.rejected_by
+                WHERE u.username = {$this->table}.deleted_by
             ),
             null
-        ) AS rejected_by_name");
+        ) AS deleted_by_name");
         // PostgreSQL
         // $this->db->select("(
         //     SELECT JSON_AGG(
