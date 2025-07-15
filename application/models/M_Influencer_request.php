@@ -205,10 +205,10 @@ Class M_Influencer_request extends CI_model {
             (
                 SELECT u.full_name
                 FROM {$this->users} u
-                WHERE u.username = {$this->table}.deleted_by
+                WHERE u.username = {$this->table}.created_by
             ),
             null
-        ) AS deleted_by_name");
+        ) AS created_by_name");
         // PostgreSQL
         // $this->db->select("(
         //     SELECT JSON_AGG(
