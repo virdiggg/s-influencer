@@ -68,7 +68,15 @@
                 {
                     data: 'status',
                     render: function (data, type, row) {
-                        return '<span class="badge badge-info">' + data + '</span>';
+                        let badge = '';
+                        if (data == 'Rejected') {
+                            badge = 'badge-danger';
+                        } else if (data == 'Approved') {
+                            badge = 'badge-success';
+                        } else {
+                            badge = 'badge-info';
+                        }
+                        return '<span class="badge ' + badge + '">' + data + '</span>';
                     }
                 },
                 {
