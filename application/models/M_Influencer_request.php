@@ -193,97 +193,6 @@ class M_Influencer_request extends CI_model
         return $result;
     }
 
-    public function export($start = null, $end = null)
-    {
-        $this->db->select("req.name, req.username_instagram, req.followers, req.engagement_rate");
-        $this->db->select("(
-            CASE
-                WHEN rejected_by IS NOT NULL THEN 'Rejected'
-                WHEN approved_by IS NOT NULL THEN 'Approved'
-                ELSE 'New Request'
-            END
-        ) AS status");
-
-        if ($this->dbDriver === 'postgre') {
-            $this->db->select("(
-                SELECT STRING_AGG(area.name, ', ')
-                FROM {$this->mapping} map
-                JOIN {$this->areas} area ON area.id = map.area_id
-                WHERE map.influencer_id = req.influencer_id
-            ) AS areas");
-        } else {
-            $this->db->select("(
-                SELECT GROUP_CONCAT(area.name SEPARATOR ', ')
-                FROM {$this->mapping} map
-                JOIN {$this->areas} area ON area.id = map.area_id
-                WHERE map.influencer_id = req.influencer_id
-            ) AS areas");
-        }
-
-        $this->db->select("COALESCE(
-            (
-                SELECT u.full_name
-                FROM {$this->users} u
-                WHERE u.username = req.created_by
-            ),
-            null
-        ) AS created_by, req.note");
-
-        if ($this->dbDriver === 'postgre') {
-            $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
-        } elseif ($this->dbDriver === 'mysql') {
-            $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
-        }
-
-        $this->db->select("COALESCE(
-            (
-                SELECT u.full_name
-                FROM {$this->users} u
-                WHERE u.username = req.approved_by
-            ),
-            null
-        ) AS approved_by");
-
-        if ($this->dbDriver === 'postgre') {
-            $this->db->select("TO_CHAR(req.approved_at, 'YYYY-MM-DD HH24:MI') AS approved_at");
-        } elseif ($this->dbDriver === 'mysql') {
-            $this->db->select("DATE_FORMAT(req.approved_at, '%Y-%m-%d %H:%i') AS approved_at");
-        }
-
-        $this->db->select("COALESCE(
-            (
-                SELECT u.full_name
-                FROM {$this->users} u
-                WHERE u.username = req.rejected_by
-            ),
-            null
-        ) AS rejected_by, req.reject_note");
-
-        if ($this->dbDriver === 'postgre') {
-            $this->db->select("TO_CHAR(req.rejected_at, 'YYYY-MM-DD HH24:MI') AS rejected_at");
-        } elseif ($this->dbDriver === 'mysql') {
-            $this->db->select("DATE_FORMAT(req.rejected_at, '%Y-%m-%d %H:%i') AS rejected_at");
-        }
-
-        $this->db->from("{$this->table} req");
-
-        if (!empty($start)) {
-            $this->db->where("req.created_at >=", $start);
-        }
-        if (!empty($end)) {
-            $this->db->where("req.created_at <=", $end);
-        }
-
-        $this->db->order_by('req.created_at', 'DESC');
-        $query = $this->db->get();
-        $result = $query->result_array();
-
-        $query->free_result();
-        $this->db->close();
-
-        return $result;
-    }
-
     public function queryDatatables($length = 10, $start = 0, $search = NULL)
     {
         $this->db->select("req.id, req.influencer_id, req.name, req.username_instagram, req.followers,
@@ -394,6 +303,97 @@ class M_Influencer_request extends CI_model
         $this->db->order_by('req.created_at', 'DESC');
         $query = $this->db->get();
         $result = $query->result();
+
+        $query->free_result();
+        $this->db->close();
+
+        return $result;
+    }
+
+    public function export($start = null, $end = null)
+    {
+        $this->db->select("req.name, req.username_instagram, req.followers, req.engagement_rate");
+        $this->db->select("(
+            CASE
+                WHEN rejected_by IS NOT NULL THEN 'Rejected'
+                WHEN approved_by IS NOT NULL THEN 'Approved'
+                ELSE 'New Request'
+            END
+        ) AS status");
+
+        if ($this->dbDriver === 'postgre') {
+            $this->db->select("(
+                SELECT STRING_AGG(area.name, ', ')
+                FROM {$this->mapping} map
+                JOIN {$this->areas} area ON area.id = map.area_id
+                WHERE map.influencer_id = req.influencer_id
+            ) AS areas");
+        } else {
+            $this->db->select("(
+                SELECT GROUP_CONCAT(area.name SEPARATOR ', ')
+                FROM {$this->mapping} map
+                JOIN {$this->areas} area ON area.id = map.area_id
+                WHERE map.influencer_id = req.influencer_id
+            ) AS areas");
+        }
+
+        $this->db->select("COALESCE(
+            (
+                SELECT u.full_name
+                FROM {$this->users} u
+                WHERE u.username = req.created_by
+            ),
+            null
+        ) AS created_by, req.note");
+
+        if ($this->dbDriver === 'postgre') {
+            $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
+        } elseif ($this->dbDriver === 'mysql') {
+            $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
+        }
+
+        $this->db->select("COALESCE(
+            (
+                SELECT u.full_name
+                FROM {$this->users} u
+                WHERE u.username = req.approved_by
+            ),
+            null
+        ) AS approved_by");
+
+        if ($this->dbDriver === 'postgre') {
+            $this->db->select("TO_CHAR(req.approved_at, 'YYYY-MM-DD HH24:MI') AS approved_at");
+        } elseif ($this->dbDriver === 'mysql') {
+            $this->db->select("DATE_FORMAT(req.approved_at, '%Y-%m-%d %H:%i') AS approved_at");
+        }
+
+        $this->db->select("COALESCE(
+            (
+                SELECT u.full_name
+                FROM {$this->users} u
+                WHERE u.username = req.rejected_by
+            ),
+            null
+        ) AS rejected_by, req.reject_note");
+
+        if ($this->dbDriver === 'postgre') {
+            $this->db->select("TO_CHAR(req.rejected_at, 'YYYY-MM-DD HH24:MI') AS rejected_at");
+        } elseif ($this->dbDriver === 'mysql') {
+            $this->db->select("DATE_FORMAT(req.rejected_at, '%Y-%m-%d %H:%i') AS rejected_at");
+        }
+
+        $this->db->from("{$this->table} req");
+
+        if (!empty($start)) {
+            $this->db->where("req.created_at >=", $start);
+        }
+        if (!empty($end)) {
+            $this->db->where("req.created_at <=", $end);
+        }
+
+        $this->db->order_by('req.created_at', 'DESC');
+        $query = $this->db->get();
+        $result = $query->result_array();
 
         $query->free_result();
         $this->db->close();
