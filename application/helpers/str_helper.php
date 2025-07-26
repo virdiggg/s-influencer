@@ -22,6 +22,29 @@ if (!function_exists('parseFollowers'))
     }
 }
 
+if (!function_exists('formatFollowers'))
+{
+    /**
+     * Convert number to words in Indonesian currency format.
+     *
+     * @param int $number
+     * @return string
+     */
+    function formatFollowers($num)
+    {
+        if ($num >= 1_000_000_000) {
+            return rtrim(rtrim(number_format($num / 1_000_000_000, 1), '0'), '.') . 'b';
+        }
+        if ($num >= 1_000_000) {
+            return rtrim(rtrim(number_format($num / 1_000_000, 1), '0'), '.') . 'm';
+        }
+        if ($num >= 1_000) {
+            return rtrim(rtrim(number_format($num / 1_000, 1), '0'), '.') . 'k';
+        }
+        return $num;
+    }
+}
+
 if (!function_exists('parseER'))
 {
     /**

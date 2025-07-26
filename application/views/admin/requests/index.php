@@ -5,7 +5,7 @@
             <ul class="nav nav-pills ml-auto">
                 <li class="nav-item">
                     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exportModal">
-                        <i class="fas fa-file-export"></i> Export Requests
+                        <i class="fas fa-file-export"></i> Export
                     </button>
                 </li>
             </ul>
@@ -37,7 +37,7 @@
 
 <div class="modal fade" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <form method="GET" action="<?= base_url('export_requests') ?>" class="modal-content">
+        <form method="GET" action="<?= base_url('api/influencer/export') ?>" target="_blank" class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exportModalLabel">Export Requests by Date</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">

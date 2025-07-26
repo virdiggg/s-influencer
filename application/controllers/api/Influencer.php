@@ -1,12 +1,15 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') or exit('No direct script access allowed');
 
-Class Influencer extends CI_Controller {
-    public function __construct() {
+class Influencer extends CI_Controller
+{
+    public function __construct()
+    {
         parent::__construct();
         $this->authenticated->checkAuth();
     }
 
-    public function store() {
+    public function store()
+    {
         if (!$this->authenticated->isAuthenticated()) {
             http_response_code(401);
             echo json_encode([
@@ -66,7 +69,8 @@ Class Influencer extends CI_Controller {
         return;
     }
 
-    public function requests() {
+    public function requests()
+    {
         if (!$this->authenticated->isAuthenticated()) {
             http_response_code(401);
             echo json_encode([
@@ -89,7 +93,8 @@ Class Influencer extends CI_Controller {
         return;
     }
 
-    public function logs() {
+    public function logs()
+    {
         if (!$this->authenticated->isAuthenticated()) {
             http_response_code(401);
             echo json_encode([
@@ -126,7 +131,8 @@ Class Influencer extends CI_Controller {
         return;
     }
 
-    public function approve() {
+    public function approve()
+    {
         if (!$this->authenticated->isAuthenticated()) {
             http_response_code(401);
             echo json_encode([
@@ -174,7 +180,8 @@ Class Influencer extends CI_Controller {
         return;
     }
 
-    public function reject() {
+    public function reject()
+    {
         if (!$this->authenticated->isAuthenticated()) {
             http_response_code(401);
             echo json_encode([
@@ -224,7 +231,8 @@ Class Influencer extends CI_Controller {
         return;
     }
 
-    public function destroy() {
+    public function destroy()
+    {
         if (!$this->authenticated->isAuthenticated()) {
             http_response_code(401);
             echo json_encode([
@@ -272,7 +280,8 @@ Class Influencer extends CI_Controller {
         return;
     }
 
-    public function datatables() {
+    public function datatables()
+    {
         if (!$this->authenticated->isAuthenticated()) {
             http_response_code(401);
             echo json_encode([
@@ -304,6 +313,67 @@ Class Influencer extends CI_Controller {
         ];
 
         echo json_encode($return);
+        return;
+    }
+
+    public function export()
+    {
+        $this->authenticated->checkAuthAdmin();
+
+        $this->load->model('M_Influencer_request', 'ir', TRUE);
+
+        $start = $this->input->get('start') ? date('Y-m-d', strtotime($this->input->get('start'))) : null;
+        $end = $this->input->get('end') ? date('Y-m-d', strtotime($this->input->get('end'))) : null;
+        $result = $this->ir->export($start, $end);
+
+        $this->load->library('PhpXlsxGenerator');
+        $fileName = 'influencer_requests_' . date('Ymd_His') . '.xlsx';
+
+        if (empty($result)) {
+            $this->phpxlsxgenerator->fromArray(['No records found'])->downloadAs($fileName);
+            return;
+        }
+
+        $data = [];
+
+        $raw_headers = array_keys(reset($result));
+
+        $headers = array_map(function ($key) {
+            return ucwords(str_replace('_', ' ', $key));
+        }, $raw_headers);
+
+        array_unshift($headers, 'No');
+        $data[] = $headers;
+
+        $colMap = array_flip($headers);
+
+        $no = 1;
+        foreach ($result as $row) {
+            $rowData = array_values($row);
+
+            array_unshift($rowData, $no++);
+
+            if (isset($colMap['Followers'])) {
+                $idx = $colMap['Followers'];
+                $rowData[$idx] = formatFollowers($rowData[$idx]);
+            }
+
+            if (isset($colMap['Username Instagram'])) {
+                $idx = $colMap['Username Instagram'];
+                $rowData[$idx] = '@' . ltrim($rowData[$idx], '@');
+            }
+
+            if (isset($colMap['Engagement Rate'])) {
+                $idx = $colMap['Engagement Rate'];
+                if ($rowData[$idx] !== null && $rowData[$idx] !== '') {
+                    $rowData[$idx] .= '%';
+                }
+            }
+
+            $data[] = $rowData;
+        }
+
+        $this->phpxlsxgenerator->fromArray($data)->downloadAs($fileName);
         return;
     }
 }

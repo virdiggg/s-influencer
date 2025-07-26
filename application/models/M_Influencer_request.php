@@ -193,7 +193,7 @@ class M_Influencer_request extends CI_model
 
     public function export($start = null, $end = null)
     {
-        $this->db->select("req.name, req.username_instagram, req.followers, req.engagement_rate, req.note, req.reject_note");
+        $this->db->select("req.name, req.username_instagram, req.followers, req.engagement_rate");
         $this->db->select("(
             CASE
                 WHEN rejected_by IS NOT NULL THEN 'Rejected'
@@ -201,6 +201,36 @@ class M_Influencer_request extends CI_model
                 ELSE 'New Request'
             END
         ) AS status");
+
+        // PostgreSQL
+        $this->db->select("(
+            SELECT STRING_AGG(area.name, ', ')
+            FROM {$this->mapping} map
+            JOIN {$this->areas} area ON area.id = map.area_id
+            WHERE map.influencer_id = req.influencer_id
+        ) AS areas");
+        // MySQL MariaDB
+        // $this->db->select("(
+        //     SELECT GROUP_CONCAT(area.name SEPARATOR ', ')
+        //     FROM {$this->mapping} map
+        //     JOIN {$this->areas} area ON area.id = map.area_id
+        //     WHERE map.influencer_id = req.influencer_id
+        // ) AS areas");
+
+        $this->db->select("COALESCE(
+            (
+                SELECT u.full_name
+                FROM {$this->users} u
+                WHERE u.username = req.created_by
+            ),
+            null
+        ) AS created_by, req.note");
+
+        // PostgreSQL
+        $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
+        // MySQL MariaDB
+        // $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
+
         $this->db->select("COALESCE(
             (
                 SELECT u.full_name
@@ -209,6 +239,11 @@ class M_Influencer_request extends CI_model
             ),
             null
         ) AS approved_by");
+        // PostgreSQL
+        $this->db->select("TO_CHAR(req.approved_at, 'YYYY-MM-DD HH24:MI') AS approved_at");
+        // MySQL MariaDB
+        // $this->db->select("DATE_FORMAT(req.approved_at, '%Y-%m-%d %H:%i') AS approved_at");
+
         $this->db->select("COALESCE(
             (
                 SELECT u.full_name
@@ -216,35 +251,13 @@ class M_Influencer_request extends CI_model
                 WHERE u.username = req.rejected_by
             ),
             null
-        ) AS rejected_by");
-        $this->db->select("COALESCE(
-            (
-                SELECT u.full_name
-                FROM {$this->users} u
-                WHERE u.username = req.created_by
-            ),
-            null
-        ) AS created_by");
+        ) AS rejected_by, req.reject_note");
+
         // PostgreSQL
-        $this->db->select("(
-            SELECT STRING_AGG(area.name, ', ')
-            FROM {$this->mapping} map
-            JOIN {$this->areas} area ON area.id = map.area_id
-            WHERE map.influencer_id = req.influencer_id
-        ) AS areas");
-        $this->db->select("TO_CHAR(req.approved_at, 'YYYY-MM-DD HH24:MI') AS approved_at");
         $this->db->select("TO_CHAR(req.rejected_at, 'YYYY-MM-DD HH24:MI') AS rejected_at");
-        $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
         // MySQL MariaDB
-        // $this->db->select("(
-        //     SELECT GROUP_CONCAT(area.name SEPARATOR ', ')
-        //     FROM {$this->mapping} map
-        //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = req.influencer_id
-        // ) AS areas");
-        // $this->db->select("DATE_FORMAT(req.approved_at, '%Y-%m-%d %H:%i') AS approved_at");
         // $this->db->select("DATE_FORMAT(req.rejected_at, '%Y-%m-%d %H:%i') AS rejected_at");
-        // $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
+
         $this->db->from("{$this->table} req");
 
         if (!empty($start)) {
@@ -256,7 +269,7 @@ class M_Influencer_request extends CI_model
 
         $this->db->order_by('req.created_at', 'DESC');
         $query = $this->db->get();
-        $result = $query->result();
+        $result = $query->result_array();
 
         $query->free_result();
         $this->db->close();
@@ -301,20 +314,20 @@ class M_Influencer_request extends CI_model
             null
         ) AS created_by_name");
         // PostgreSQL
-        // $this->db->select("(
-        //     SELECT JSON_AGG(
-        //         JSON_BUILD_OBJECT(
-        //             'id', map.id,
-        //             'area_id', map.area_id,
-        //             'influencer_id', map.influencer_id,
-        //             'area', area.name
-        //         ) ORDER BY map.id
-        //     )
-        //     FROM {$this->mapping} map
-        //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = req.influencer_id
-        // ) AS areas");
-        // $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
+        $this->db->select("(
+            SELECT JSON_AGG(
+                JSON_BUILD_OBJECT(
+                    'id', map.id,
+                    'area_id', map.area_id,
+                    'influencer_id', map.influencer_id,
+                    'area', area.name
+                ) ORDER BY map.id
+            )
+            FROM {$this->mapping} map
+            JOIN {$this->areas} area ON area.id = map.area_id
+            WHERE map.influencer_id = req.influencer_id
+        ) AS areas");
+        $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
         // MySQL
         // $this->db->select("(
         //     SELECT JSON_ARRAYAGG(
@@ -331,23 +344,23 @@ class M_Influencer_request extends CI_model
         //     ORDER BY map.id
         // ) AS areas");
         // MySQL MariaDB
-        $this->db->select("(
-            SELECT CONCAT('[', GROUP_CONCAT(
-                CONCAT(
-                    '{',
-                    '\"id\":', map.id, ',',
-                    '\"area_id\":', map.area_id, ',',
-                    '\"influencer_id\":', map.influencer_id, ',',
-                    '\"area\":\"', area.name, '\"',
-                    '}'
-                )
-            ), ']')
-            FROM {$this->mapping} map
-            JOIN {$this->areas} area ON area.id = map.area_id
-            WHERE map.influencer_id = req.influencer_id
-        )
-        AS areas");
-        $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
+        // $this->db->select("(
+        //     SELECT CONCAT('[', GROUP_CONCAT(
+        //         CONCAT(
+        //             '{',
+        //             '\"id\":', map.id, ',',
+        //             '\"area_id\":', map.area_id, ',',
+        //             '\"influencer_id\":', map.influencer_id, ',',
+        //             '\"area\":\"', area.name, '\"',
+        //             '}'
+        //         )
+        //     ), ']')
+        //     FROM {$this->mapping} map
+        //     JOIN {$this->areas} area ON area.id = map.area_id
+        //     WHERE map.influencer_id = req.influencer_id
+        // )
+        // AS areas");
+        // $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
         $this->db->from("{$this->table} req");
 
         if (!empty($search)) {
