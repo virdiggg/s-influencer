@@ -63,9 +63,6 @@ class M_Influencer_request extends CI_model
 
             $query = "INSERT INTO \"{$this->table}\" (" . join(', ', $var) . ") VALUES (" . join(', ', $val) . ") RETURNING *;";
             return $this->db->query($query)->row();
-            $this->db->where($this->primary, $id);
-            $this->db->update($this->table, $param);
-            return $this->find($id);
         } else {
             $date = date("Y-m-d H:i:s");
             $username = getSession("username");
