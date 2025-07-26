@@ -245,7 +245,7 @@ class M_Influencer_request extends CI_model
                 WHERE map.influencer_id = req.influencer_id
             ) AS areas");
             $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
-        } elseif ($this->dbDriver === 'mysql') {
+        } else {
             // MySQL
             // $this->db->select("(
             //     SELECT JSON_ARRAYAGG(
@@ -348,7 +348,7 @@ class M_Influencer_request extends CI_model
 
         if ($this->dbDriver === 'postgre') {
             $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
-        } elseif ($this->dbDriver === 'mysql') {
+        } else {
             $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
         }
 
@@ -363,7 +363,7 @@ class M_Influencer_request extends CI_model
 
         if ($this->dbDriver === 'postgre') {
             $this->db->select("TO_CHAR(req.approved_at, 'YYYY-MM-DD HH24:MI') AS approved_at");
-        } elseif ($this->dbDriver === 'mysql') {
+        } else {
             $this->db->select("DATE_FORMAT(req.approved_at, '%Y-%m-%d %H:%i') AS approved_at");
         }
 
@@ -378,7 +378,7 @@ class M_Influencer_request extends CI_model
 
         if ($this->dbDriver === 'postgre') {
             $this->db->select("TO_CHAR(req.rejected_at, 'YYYY-MM-DD HH24:MI') AS rejected_at");
-        } elseif ($this->dbDriver === 'mysql') {
+        } else {
             $this->db->select("DATE_FORMAT(req.rejected_at, '%Y-%m-%d %H:%i') AS rejected_at");
         }
 
