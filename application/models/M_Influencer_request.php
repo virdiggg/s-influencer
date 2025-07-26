@@ -1,6 +1,7 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') or exit('No direct script access allowed');
 
-Class M_Influencer_request extends CI_model {
+class M_Influencer_request extends CI_model
+{
     private $table = "influencer_requests";
     private $logs = "influencer_request_logs";
     private $areas = "ms_areas";
@@ -11,11 +12,13 @@ Class M_Influencer_request extends CI_model {
 
     private $primary = "id";
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
-    public function getToDoList() {
+    public function getToDoList()
+    {
         return $this->db->select('id, influencer_id, name, username_instagram, followers,
             engagement_rate, note, created_by, created_at')
             ->select("COALESCE(
@@ -28,23 +31,24 @@ Class M_Influencer_request extends CI_model {
             ) AS created_by_name")
             ->from($this->table)
             ->group_start()
-                ->where('approved_by IS NULL')
-                ->or_where('approved_at IS NULL')
+            ->where('approved_by IS NULL')
+            ->or_where('approved_at IS NULL')
             ->group_end()
             ->group_start()
-                ->where('rejected_by IS NULL')
-                ->where('rejected_at IS NULL')
+            ->where('rejected_by IS NULL')
+            ->where('rejected_at IS NULL')
             ->group_end()
             ->group_start()
-                ->where('deleted_by IS NULL')
-                ->where('deleted_at IS NULL')
+            ->where('deleted_by IS NULL')
+            ->where('deleted_at IS NULL')
             ->group_end()
             ->order_by('created_at', 'DESC')
             ->limit(5)
             ->get()->result();
     }
 
-    public function create($param) {
+    public function create($param)
+    {
         // PostgreSQL
         // $var = $val = [];
         // foreach ($param as $key => $p) {
@@ -76,7 +80,8 @@ Class M_Influencer_request extends CI_model {
         return $res;
     }
 
-    public function update($id, $param) {
+    public function update($id, $param)
+    {
         if (count($param) === 0) {
             return null;
         }
@@ -110,18 +115,21 @@ Class M_Influencer_request extends CI_model {
         return $this->find($id);
     }
 
-    private function __find($where) {
+    private function __find($where)
+    {
         $this->db->select();
         $this->db->from($this->table);
         $this->db->where($where);
         return $this->db->get()->row();
     }
 
-    public function find($id) {
+    public function find($id)
+    {
         return $this->__find([$this->primary => $id]);
     }
 
-    public function datatables($length = 10, $start = 0, $search = NULL) {
+    public function datatables($length = 10, $start = 0, $search = NULL)
+    {
         $result = $this->queryDatatables($length, $start, $search);
         $countResult = count($result);
 
@@ -146,7 +154,8 @@ Class M_Influencer_request extends CI_model {
         ];
     }
 
-    public function parse($result, $start = 0) {
+    public function parse($result, $start = 0)
+    {
         $isAdmin = getSession('role') === 'ADMIN';
 
         foreach ($result as $r) {
@@ -182,10 +191,9 @@ Class M_Influencer_request extends CI_model {
         return $result;
     }
 
-    public function queryDatatables($length = 10, $start = 0, $search = NULL) {
-        $this->db->select("id, influencer_id, name, username_instagram, followers,
-            engagement_rate, note, created_by, approved_by, approved_at,
-            rejected_by, rejected_at, reject_note");
+    public function export($start = null, $end = null)
+    {
+        $this->db->select("req.name, req.username_instagram, req.followers, req.engagement_rate, req.note, req.reject_note");
         $this->db->select("(
             CASE
                 WHEN rejected_by IS NOT NULL THEN 'Rejected'
@@ -197,7 +205,82 @@ Class M_Influencer_request extends CI_model {
             (
                 SELECT u.full_name
                 FROM {$this->users} u
-                WHERE u.username = {$this->table}.approved_by
+                WHERE u.username = req.approved_by
+            ),
+            null
+        ) AS approved_by");
+        $this->db->select("COALESCE(
+            (
+                SELECT u.full_name
+                FROM {$this->users} u
+                WHERE u.username = req.rejected_by
+            ),
+            null
+        ) AS rejected_by");
+        $this->db->select("COALESCE(
+            (
+                SELECT u.full_name
+                FROM {$this->users} u
+                WHERE u.username = req.created_by
+            ),
+            null
+        ) AS created_by");
+        // PostgreSQL
+        $this->db->select("(
+            SELECT STRING_AGG(area.name, ', ')
+            FROM {$this->mapping} map
+            JOIN {$this->areas} area ON area.id = map.area_id
+            WHERE map.influencer_id = req.influencer_id
+        ) AS areas");
+        $this->db->select("TO_CHAR(req.approved_at, 'YYYY-MM-DD HH24:MI') AS approved_at");
+        $this->db->select("TO_CHAR(req.rejected_at, 'YYYY-MM-DD HH24:MI') AS rejected_at");
+        $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
+        // MySQL MariaDB
+        // $this->db->select("(
+        //     SELECT GROUP_CONCAT(area.name SEPARATOR ', ')
+        //     FROM {$this->mapping} map
+        //     JOIN {$this->areas} area ON area.id = map.area_id
+        //     WHERE map.influencer_id = req.influencer_id
+        // ) AS areas");
+        // $this->db->select("DATE_FORMAT(req.approved_at, '%Y-%m-%d %H:%i') AS approved_at");
+        // $this->db->select("DATE_FORMAT(req.rejected_at, '%Y-%m-%d %H:%i') AS rejected_at");
+        // $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
+        $this->db->from("{$this->table} req");
+
+        if (!empty($start)) {
+            $this->db->where("req.created_at >=", $start);
+        }
+        if (!empty($end)) {
+            $this->db->where("req.created_at <=", $end);
+        }
+
+        $this->db->order_by('req.created_at', 'DESC');
+        $query = $this->db->get();
+        $result = $query->result();
+
+        $query->free_result();
+        $this->db->close();
+
+        return $result;
+    }
+
+    public function queryDatatables($length = 10, $start = 0, $search = NULL)
+    {
+        $this->db->select("req.id, req.influencer_id, req.name, req.username_instagram, req.followers,
+            req.engagement_rate, req.note, req.created_by, req.approved_by, req.approved_at,
+            req.rejected_by, req.rejected_at, req.reject_note");
+        $this->db->select("(
+            CASE
+                WHEN rejected_by IS NOT NULL THEN 'Rejected'
+                WHEN approved_by IS NOT NULL THEN 'Approved'
+                ELSE 'New Request'
+            END
+        ) AS status");
+        $this->db->select("COALESCE(
+            (
+                SELECT u.full_name
+                FROM {$this->users} u
+                WHERE u.username = req.approved_by
             ),
             null
         ) AS approved_by_name");
@@ -205,7 +288,7 @@ Class M_Influencer_request extends CI_model {
             (
                 SELECT u.full_name
                 FROM {$this->users} u
-                WHERE u.username = {$this->table}.rejected_by
+                WHERE u.username = req.rejected_by
             ),
             null
         ) AS rejected_by_name");
@@ -213,7 +296,7 @@ Class M_Influencer_request extends CI_model {
             (
                 SELECT u.full_name
                 FROM {$this->users} u
-                WHERE u.username = {$this->table}.created_by
+                WHERE u.username = req.created_by
             ),
             null
         ) AS created_by_name");
@@ -229,9 +312,9 @@ Class M_Influencer_request extends CI_model {
         //     )
         //     FROM {$this->mapping} map
         //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = {$this->table}.id
+        //     WHERE map.influencer_id = req.influencer_id
         // ) AS areas");
-        // $this->db->select("TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
+        // $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
         // MySQL
         // $this->db->select("(
         //     SELECT JSON_ARRAYAGG(
@@ -244,7 +327,7 @@ Class M_Influencer_request extends CI_model {
         //     )
         //     FROM {$this->mapping} map
         //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = {$this->table}.id
+        //     WHERE map.influencer_id = req.influencer_id
         //     ORDER BY map.id
         // ) AS areas");
         // MySQL MariaDB
@@ -261,30 +344,30 @@ Class M_Influencer_request extends CI_model {
             ), ']')
             FROM {$this->mapping} map
             JOIN {$this->areas} area ON area.id = map.area_id
-            WHERE map.influencer_id = {$this->table}.id
+            WHERE map.influencer_id = req.influencer_id
         )
         AS areas");
-        $this->db->select("DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at");
-        $this->db->from($this->table);
+        $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
+        $this->db->from("{$this->table} req");
 
         if (!empty($search)) {
             $this->db->group_start();
-                $this->db->like('LOWER(name)', $search);
-                $this->db->or_like('LOWER(username_instagram)', $search);
+            $this->db->like('LOWER(req.name)', $search);
+            $this->db->or_like('LOWER(req.username_instagram)', $search);
             $this->db->group_end();
         }
 
         if (getSession('role') === 'USER') {
-            $this->db->where('created_by', getSession('username'));
+            $this->db->where('req.created_by', getSession('username'));
         }
 
         $this->db->group_start();
-            $this->db->where('deleted_by IS NULL');
-            $this->db->where('deleted_at IS NULL');
+        $this->db->where('req.deleted_by IS NULL');
+        $this->db->where('req.deleted_at IS NULL');
         $this->db->group_end();
 
         $this->db->limit($length, $start);
-        $this->db->order_by('created_at', 'DESC');
+        $this->db->order_by('req.created_at', 'DESC');
         $query = $this->db->get();
         $result = $query->result();
 
@@ -294,7 +377,8 @@ Class M_Influencer_request extends CI_model {
         return $result;
     }
 
-    public function approve($id) {
+    public function approve($id)
+    {
         $param = [
             'approved_by' => getSession('username'),
             'approved_at' => date("Y-m-d H:i:s"),
@@ -304,7 +388,8 @@ Class M_Influencer_request extends CI_model {
         return $res;
     }
 
-    public function reject($id, $reason) {
+    public function reject($id, $reason)
+    {
         $param = [
             'rejected_by' => getSession('username'),
             'rejected_at' => date("Y-m-d H:i:s"),
@@ -315,7 +400,8 @@ Class M_Influencer_request extends CI_model {
         return $res;
     }
 
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $param = [
             'deleted_by' => getSession('username'),
             'deleted_at' => date("Y-m-d H:i:s"),
@@ -325,7 +411,8 @@ Class M_Influencer_request extends CI_model {
         return $res;
     }
 
-    public function logs($id) {
+    public function logs($id)
+    {
         return $this->db->select('id, request_id, created_by, created_at, label')
             ->select("(
                 CASE
@@ -338,7 +425,8 @@ Class M_Influencer_request extends CI_model {
             ->where('request_id', $id)->order_by('created_at', 'ASC')->get()->result();
     }
 
-    public function insertLog($requestId, $label, $actor, $date = null) {
+    public function insertLog($requestId, $label, $actor, $date = null)
+    {
         $this->db->insert($this->logs, [
             'created_by' => $actor,
             'created_at' => $date ? $date : date("Y-m-d H:i:s"),
