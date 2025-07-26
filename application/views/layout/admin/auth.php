@@ -12,6 +12,7 @@
     <link rel="apple-touch-icon" href="<?= base_url('assets/img/xyz.png') ?>" />
 
     <link rel="stylesheet" href="<?= base_url('assets/css/adminlte.min.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/icheck-bootstrap/icheck-bootstrap.min.css') ?>" />
     <link rel="preload" href="<?= base_url('assets/vendor/fontawesome-free/css/all.min.css'); ?>" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript>
         <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome-free/css/all.min.css'); ?>" />
@@ -50,6 +51,12 @@
                                 <div class="input-group-text">
                                     <span class="fas fa-lock"></span>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <div class="icheck-primary mr-1">
+                                <input type="checkbox" class="view-password" id="view-password" />
+                                <label for="view-password">Lihat Password</label>
                             </div>
                         </div>
                         <div class="row">
@@ -108,6 +115,11 @@
                         btn.disabled = false;
                     });
             });
+        });
+        $('.view-password').on('click', function() {
+            const passwordInput = $(this).closest('.card-body').find('input[name="password"]');
+            const isVisible = passwordInput.attr('type') === 'text';
+            passwordInput.attr('type', isVisible ? 'password' : 'text');
         });
     </script>
 </body>
