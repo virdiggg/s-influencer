@@ -15,6 +15,7 @@
                         <th>Note</th>
                         <th>Status</th>
                         <th>Requested By</th>
+                        <th>Requested At</th>
                         <th></th>
                     </tr>
                 </thead>

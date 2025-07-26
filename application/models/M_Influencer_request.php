@@ -184,7 +184,7 @@ Class M_Influencer_request extends CI_model {
 
     public function queryDatatables($length = 10, $start = 0, $search = NULL) {
         $this->db->select("id, influencer_id, name, username_instagram, followers,
-            engagement_rate, note, created_by, created_at, approved_by, approved_at,
+            engagement_rate, note, created_by, approved_by, approved_at,
             rejected_by, rejected_at, reject_note");
         $this->db->select("(
             CASE
@@ -231,6 +231,7 @@ Class M_Influencer_request extends CI_model {
         //     JOIN {$this->areas} area ON area.id = map.area_id
         //     WHERE map.influencer_id = {$this->table}.id
         // ) AS areas");
+        // $this->db->select("TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
         // MySQL
         // $this->db->select("(
         //     SELECT JSON_ARRAYAGG(
@@ -263,6 +264,7 @@ Class M_Influencer_request extends CI_model {
             WHERE map.influencer_id = {$this->table}.id
         )
         AS areas");
+        $this->db->select("DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at");
         $this->db->from($this->table);
 
         if (!empty($search)) {

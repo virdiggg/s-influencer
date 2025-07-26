@@ -86,6 +86,9 @@
                     data: 'created_by_name',
                 },
                 {
+                    data: 'created_at',
+                },
+                {
                     data: 'actions',
                     className: "text-center"
                 },
