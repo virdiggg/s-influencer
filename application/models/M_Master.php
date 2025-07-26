@@ -8,10 +8,12 @@ Class M_Master extends CI_model {
 
     private $primary = "id";
     private $username;
+    private $dbDriver;
 
     public function __construct() {
         parent::__construct();
         $this->username = getSession("username");
+        $this->dbDriver = $this->db->dbdriver;
     }
 
     public function categories() {
@@ -65,53 +67,56 @@ Class M_Master extends CI_model {
             ),
             null
         ) AS category");
-        // PostgreSQL
-        // $this->db->select("(
-        //     SELECT JSON_AGG(
-        //         JSON_BUILD_OBJECT(
-        //             'id', map.id,
-        //             'area_id', map.area_id,
-        //             'influencer_id', map.influencer_id,
-        //             'area', area.name
-        //         ) ORDER BY map.id
-        //     )
-        //     FROM {$this->mapping} map
-        //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = inf.id
-        // ) AS areas");
-        // MySQL
-        // $this->db->select("(
-        //     SELECT JSON_ARRAYAGG(
-        //     JSON_OBJECT(
-        //         'id', map.id,
-        //         'area_id', map.area_id,
-        //         'influencer_id', map.influencer_id,
-        //         'area', area.name
-        //     )
-        //     )
-        //     FROM {$this->mapping} map
-        //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = inf.id
-        //     ORDER BY map.id
-        // ) AS areas");
-        // MySQL MariaDB
-        $this->db->select("(
-            SELECT CONCAT('[', GROUP_CONCAT(
-                CONCAT(
-                    '{',
-                    '\"id\":', map.id, ',',
-                    '\"area_id\":', map.area_id, ',',
-                    '\"influencer_id\":', map.influencer_id, ',',
-                    '\"area\":\"', area.name, '\"',
-                    '}'
+        if ($this->dbDriver === 'postgre') {
+            // PostgreSQL
+            $this->db->select("(
+                SELECT JSON_AGG(
+                    JSON_BUILD_OBJECT(
+                        'id', map.id,
+                        'area_id', map.area_id,
+                        'influencer_id', map.influencer_id,
+                        'area', area.name
+                    ) ORDER BY map.id
                 )
-            ), ']')
-            FROM {$this->mapping} map
-            JOIN {$this->areas} area ON area.id = map.area_id
-            WHERE map.influencer_id = inf.id
-            ORDER BY map.id
-        )
-        AS areas");
+                FROM {$this->mapping} map
+                JOIN {$this->areas} area ON area.id = map.area_id
+                WHERE map.influencer_id = inf.id
+            ) AS areas");
+        } else {
+            // MySQL
+            // $this->db->select("(
+            //     SELECT JSON_ARRAYAGG(
+            //     JSON_OBJECT(
+            //         'id', map.id,
+            //         'area_id', map.area_id,
+            //         'influencer_id', map.influencer_id,
+            //         'area', area.name
+            //     )
+            //     )
+            //     FROM {$this->mapping} map
+            //     JOIN {$this->areas} area ON area.id = map.area_id
+            //     WHERE map.influencer_id = inf.id
+            //     ORDER BY map.id
+            // ) AS areas");
+            // MySQL MariaDB
+            $this->db->select("(
+                SELECT CONCAT('[', GROUP_CONCAT(
+                    CONCAT(
+                        '{',
+                        '\"id\":', map.id, ',',
+                        '\"area_id\":', map.area_id, ',',
+                        '\"influencer_id\":', map.influencer_id, ',',
+                        '\"area\":\"', area.name, '\"',
+                        '}'
+                    )
+                ), ']')
+                FROM {$this->mapping} map
+                JOIN {$this->areas} area ON area.id = map.area_id
+                WHERE map.influencer_id = inf.id
+                ORDER BY map.id
+            )
+            AS areas");
+        }
         $this->db->from($this->influencers . ' inf');
 
         if (count($filters) > 0) {
@@ -201,23 +206,23 @@ Class M_Master extends CI_model {
         $this->db->trans_start();
         $this->db->trans_strict(FALSE);
 
-        // PostgreSQL
-        // $val = $var = [];
-        // foreach ($param as $key => $p) {
-        //     $val[] = !is_null($p) ? $this->db->escape($p) : "NULL";
-        //     $var[] = '"' . $key . '"';
-        // }
+        if ($this->dbDriver === 'postgre') {
+            $val = $var = [];
+            foreach ($param as $key => $p) {
+                $val[] = !is_null($p) ? $this->db->escape($p) : "NULL";
+                $var[] = '"' . $key . '"';
+            }
 
-        // $var[] = "created_at, created_by, updated_at, updated_by";
-        // $val[] = "NOW(), '" . $this->username . "', NOW(), '" . $this->username . "'";
+            $var[] = "created_at, created_by, updated_at, updated_by";
+            $val[] = "NOW(), '" . $this->username . "', NOW(), '" . $this->username . "'";
 
-        // $query = "INSERT INTO {$this->influencers} (" . join(", ", $var) . ") VALUES (" . join(", ", $val) . ") RETURNING *;";
-        // unset($val, $var);
-        // $influencer = $this->db->query($query)->row();
-
-        // MySQL
-        $this->db->insert($this->influencers, $param);
-        $influencer = $this->find($this->db->insert_id());
+            $query = "INSERT INTO {$this->influencers} (" . join(", ", $var) . ") VALUES (" . join(", ", $val) . ") RETURNING *;";
+            unset($val, $var);
+            $influencer = $this->db->query($query)->row();
+        } else {
+            $this->db->insert($this->influencers, $param);
+            $influencer = $this->find($this->db->insert_id());
+        }
 
         if (count($area) > 0) {
             $this->insertArea($influencer->id, $area);
@@ -242,33 +247,34 @@ Class M_Master extends CI_model {
         $this->db->trans_start();
         $this->db->trans_strict(FALSE);
 
-        // PostgreSQL
-        // $values = [];
-        // foreach ($param as $key => $p) {
-        //     $val = !is_null($p) ? $this->db->escape($p) : "NULL";
-        //     $values[] = '"' . $key . '" = ' . $val;
-        // }
+        if ($this->dbDriver === 'postgre') {
+            // PostgreSQL
+            $values = [];
+            foreach ($param as $key => $p) {
+                $val = !is_null($p) ? $this->db->escape($p) : "NULL";
+                $values[] = '"' . $key . '" = ' . $val;
+            }
 
-        // $values[] = "updated_at = NOW(), updated_by = '" . $this->username . "'";
+            $values[] = "updated_at = NOW(), updated_by = '" . $this->username . "'";
 
-        // $set = join(", ", $values);
+            $set = join(", ", $values);
 
-        // $tmpWhere = [];
-        // $tmpWhere[] = "\"{$this->primary}\" = " . $this->db->escape($id);
+            $tmpWhere = [];
+            $tmpWhere[] = "\"{$this->primary}\" = " . $this->db->escape($id);
 
-        // $where = "WHERE " . join(" AND ", $tmpWhere);
-        // $query = "UPDATE \"{$this->influencers}\" SET {$set} {$where} RETURNING *;";
-        // unset($tmpWhere, $values, $where);
-        // $influencer = $this->db->query($query)->row();
-
-        // MySQL
-        $param = array_merge($param, [
-            'updated_at' => date("Y-m-d H:i:s"),
-            'updated_by' => $this->username,
-        ]);
-        $this->db->where($this->primary, $id);
-        $this->db->update($this->influencers, $param);
-        $influencer = $this->find($id);
+            $where = "WHERE " . join(" AND ", $tmpWhere);
+            $query = "UPDATE \"{$this->influencers}\" SET {$set} {$where} RETURNING *;";
+            unset($tmpWhere, $values, $where);
+            $influencer = $this->db->query($query)->row();
+        } else {
+            $param = array_merge($param, [
+                'updated_at' => date("Y-m-d H:i:s"),
+                'updated_by' => $this->username,
+            ]);
+            $this->db->where($this->primary, $id);
+            $this->db->update($this->influencers, $param);
+            $influencer = $this->find($id);
+        }
 
         if (count($area) > 0) {
             $this->deleteArea($id);
@@ -294,53 +300,57 @@ Class M_Master extends CI_model {
             ),
             null
         ) AS category");
-        // PostgreSQL
-        // $this->db->select("(
-        //     SELECT JSON_AGG(
-        //         JSON_BUILD_OBJECT(
-        //             'id', map.id,
-        //             'area_id', map.area_id,
-        //             'influencer_id', map.influencer_id,
-        //             'area', area.name
-        //         ) ORDER BY map.id
-        //     )
-        //     FROM {$this->mapping} map
-        //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = inf.id
-        // ) AS areas");
-        // MySQL
-        // $this->db->select("(
-        //     SELECT JSON_ARRAYAGG(
-        //     JSON_OBJECT(
-        //         'id', map.id,
-        //         'area_id', map.area_id,
-        //         'influencer_id', map.influencer_id,
-        //         'area', area.name
-        //     )
-        //     )
-        //     FROM {$this->mapping} map
-        //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = inf.id
-        //     ORDER BY map.id
-        // ) AS areas");
-        // MySQL MariaDB
-        $this->db->select("(
-            SELECT CONCAT('[', GROUP_CONCAT(
-                CONCAT(
-                    '{',
-                    '\"id\":', map.id, ',',
-                    '\"area_id\":', map.area_id, ',',
-                    '\"influencer_id\":', map.influencer_id, ',',
-                    '\"area\":\"', area.name, '\"',
-                    '}'
+
+        if ($this->dbDriver === 'postgre') {
+            // PostgreSQL
+            $this->db->select("(
+                SELECT JSON_AGG(
+                    JSON_BUILD_OBJECT(
+                        'id', map.id,
+                        'area_id', map.area_id,
+                        'influencer_id', map.influencer_id,
+                        'area', area.name
+                    ) ORDER BY map.id
                 )
-            ), ']')
-            FROM {$this->mapping} map
-            JOIN {$this->areas} area ON area.id = map.area_id
-            WHERE map.influencer_id = inf.id
-            ORDER BY map.id
-        )
-        AS areas");
+                FROM {$this->mapping} map
+                JOIN {$this->areas} area ON area.id = map.area_id
+                WHERE map.influencer_id = inf.id
+            ) AS areas");
+        } else {
+            // MySQL
+            // $this->db->select("(
+            //     SELECT JSON_ARRAYAGG(
+            //     JSON_OBJECT(
+            //         'id', map.id,
+            //         'area_id', map.area_id,
+            //         'influencer_id', map.influencer_id,
+            //         'area', area.name
+            //     )
+            //     )
+            //     FROM {$this->mapping} map
+            //     JOIN {$this->areas} area ON area.id = map.area_id
+            //     WHERE map.influencer_id = inf.id
+            //     ORDER BY map.id
+            // ) AS areas");
+            // MySQL MariaDB
+            $this->db->select("(
+                SELECT CONCAT('[', GROUP_CONCAT(
+                    CONCAT(
+                        '{',
+                        '\"id\":', map.id, ',',
+                        '\"area_id\":', map.area_id, ',',
+                        '\"influencer_id\":', map.influencer_id, ',',
+                        '\"area\":\"', area.name, '\"',
+                        '}'
+                    )
+                ), ']')
+                FROM {$this->mapping} map
+                JOIN {$this->areas} area ON area.id = map.area_id
+                WHERE map.influencer_id = inf.id
+                ORDER BY map.id
+            )
+            AS areas");
+        }
         $this->db->from($this->influencers . ' inf');
         $this->db->where($where);
         return $this->db->get()->row();

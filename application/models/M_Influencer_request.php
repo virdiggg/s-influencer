@@ -11,10 +11,12 @@ class M_Influencer_request extends CI_model
     private $users = "users";
 
     private $primary = "id";
+    private $dbDriver;
 
     public function __construct()
     {
         parent::__construct();
+        $this->dbDriver = $this->db->dbdriver;
     }
 
     public function getToDoList()
@@ -49,35 +51,35 @@ class M_Influencer_request extends CI_model
 
     public function create($param)
     {
-        // PostgreSQL
-        // $var = $val = [];
-        // foreach ($param as $key => $p) {
-        //     $var[] = '"' . $key . '"';
-        //     $val[] = !is_null($p) ? $this->db->escape($p) : "NULL";
-        // }
+        if ($this->dbDriver === 'postgre') {
+            $var = $val = [];
+            foreach ($param as $key => $p) {
+                $var[] = '"' . $key . '"';
+                $val[] = !is_null($p) ? $this->db->escape($p) : "NULL";
+            }
 
-        // $var[] = 'created_at, created_by, updated_at, updated_by';
-        // $val[] = "NOW(), '" . getSession('username') . "', NOW(), '" . getSession('username') . "'";
+            $var[] = 'created_at, created_by, updated_at, updated_by';
+            $val[] = "NOW(), '" . getSession('username') . "', NOW(), '" . getSession('username') . "'";
 
-        // $query = "INSERT INTO \"{$this->table}\" (" . join(', ', $var) . ") VALUES (" . join(', ', $val) . ") RETURNING *;";
-        // return $this->db->query($query)->row();
-        // $this->db->where($this->primary, $id);
-        // $this->db->update($this->table, $param);
-        // return $this->find($id);
-
-        // MySQL
-        $date = date("Y-m-d H:i:s");
-        $username = getSession("username");
-        $data = array_merge($param, [
-            "created_at" => $date,
-            "created_by" => $username,
-            "updated_at" => $date,
-            "updated_by" => $username,
-        ]);
-        $this->db->insert($this->table, $data);
-        $res = $this->find($this->db->insert_id());
-        $this->insertLog($res->id, "New Request", $username, $date);
-        return $res;
+            $query = "INSERT INTO \"{$this->table}\" (" . join(', ', $var) . ") VALUES (" . join(', ', $val) . ") RETURNING *;";
+            return $this->db->query($query)->row();
+            $this->db->where($this->primary, $id);
+            $this->db->update($this->table, $param);
+            return $this->find($id);
+        } else {
+            $date = date("Y-m-d H:i:s");
+            $username = getSession("username");
+            $data = array_merge($param, [
+                "created_at" => $date,
+                "created_by" => $username,
+                "updated_at" => $date,
+                "updated_by" => $username,
+            ]);
+            $this->db->insert($this->table, $data);
+            $res = $this->find($this->db->insert_id());
+            $this->insertLog($res->id, "New Request", $username, $date);
+            return $res;
+        }
     }
 
     public function update($id, $param)
@@ -86,33 +88,33 @@ class M_Influencer_request extends CI_model
             return null;
         }
 
-        // PostgreSQL
-        // $values = [];
-        // foreach ($param as $key => $p) {
-        //     $val = !is_null($p) ? $this->db->escape($p) : "NULL";
-        //     $values[] = '"' . $key . '" = ' . $val;
-        // }
+        if ($this->dbDriver === 'postgre') {
+            $values = [];
+            foreach ($param as $key => $p) {
+                $val = !is_null($p) ? $this->db->escape($p) : "NULL";
+                $values[] = '"' . $key . '" = ' . $val;
+            }
 
-        // $values[] = "updated_at = NOW(), updated_by = '" . getSession('username') . "'";
+            $values[] = "updated_at = NOW(), updated_by = '" . getSession('username') . "'";
 
-        // $set = join(", ", $values);
+            $set = join(", ", $values);
 
-        // $tmpWhere = [];
-        // $tmpWhere[] = "\"{$this->primary}\" = " . $this->db->escape($id);
+            $tmpWhere = [];
+            $tmpWhere[] = "\"{$this->primary}\" = " . $this->db->escape($id);
 
-        // $where = "WHERE " . join(" AND ", $tmpWhere);
-        // $query = "UPDATE \"{$this->table}\" SET {$set} {$where} RETURNING *;";
-        // unset($tmpWhere, $values, $where);
-        // return $this->db->query($query)->row();
-
-        // MySQL
-        $param = array_merge($param, [
-            "updated_at" => date("Y-m-d H:i:s"),
-            "updated_by" => getSession("username"),
-        ]);
-        $this->db->where($this->primary, $id);
-        $this->db->update($this->table, $param);
-        return $this->find($id);
+            $where = "WHERE " . join(" AND ", $tmpWhere);
+            $query = "UPDATE \"{$this->table}\" SET {$set} {$where} RETURNING *;";
+            unset($tmpWhere, $values, $where);
+            return $this->db->query($query)->row();
+        } else {
+            $param = array_merge($param, [
+                "updated_at" => date("Y-m-d H:i:s"),
+                "updated_by" => getSession("username"),
+            ]);
+            $this->db->where($this->primary, $id);
+            $this->db->update($this->table, $param);
+            return $this->find($id);
+        }
     }
 
     private function __find($where)
@@ -202,20 +204,21 @@ class M_Influencer_request extends CI_model
             END
         ) AS status");
 
-        // PostgreSQL
-        $this->db->select("(
-            SELECT STRING_AGG(area.name, ', ')
-            FROM {$this->mapping} map
-            JOIN {$this->areas} area ON area.id = map.area_id
-            WHERE map.influencer_id = req.influencer_id
-        ) AS areas");
-        // MySQL MariaDB
-        // $this->db->select("(
-        //     SELECT GROUP_CONCAT(area.name SEPARATOR ', ')
-        //     FROM {$this->mapping} map
-        //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = req.influencer_id
-        // ) AS areas");
+        if ($this->dbDriver === 'postgre') {
+            $this->db->select("(
+                SELECT STRING_AGG(area.name, ', ')
+                FROM {$this->mapping} map
+                JOIN {$this->areas} area ON area.id = map.area_id
+                WHERE map.influencer_id = req.influencer_id
+            ) AS areas");
+        } else {
+            $this->db->select("(
+                SELECT GROUP_CONCAT(area.name SEPARATOR ', ')
+                FROM {$this->mapping} map
+                JOIN {$this->areas} area ON area.id = map.area_id
+                WHERE map.influencer_id = req.influencer_id
+            ) AS areas");
+        }
 
         $this->db->select("COALESCE(
             (
@@ -226,10 +229,11 @@ class M_Influencer_request extends CI_model
             null
         ) AS created_by, req.note");
 
-        // PostgreSQL
-        $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
-        // MySQL MariaDB
-        // $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
+        if ($this->dbDriver === 'postgre') {
+            $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
+        } elseif ($this->dbDriver === 'mysql') {
+            $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
+        }
 
         $this->db->select("COALESCE(
             (
@@ -239,10 +243,12 @@ class M_Influencer_request extends CI_model
             ),
             null
         ) AS approved_by");
-        // PostgreSQL
-        $this->db->select("TO_CHAR(req.approved_at, 'YYYY-MM-DD HH24:MI') AS approved_at");
-        // MySQL MariaDB
-        // $this->db->select("DATE_FORMAT(req.approved_at, '%Y-%m-%d %H:%i') AS approved_at");
+
+        if ($this->dbDriver === 'postgre') {
+            $this->db->select("TO_CHAR(req.approved_at, 'YYYY-MM-DD HH24:MI') AS approved_at");
+        } elseif ($this->dbDriver === 'mysql') {
+            $this->db->select("DATE_FORMAT(req.approved_at, '%Y-%m-%d %H:%i') AS approved_at");
+        }
 
         $this->db->select("COALESCE(
             (
@@ -253,10 +259,11 @@ class M_Influencer_request extends CI_model
             null
         ) AS rejected_by, req.reject_note");
 
-        // PostgreSQL
-        $this->db->select("TO_CHAR(req.rejected_at, 'YYYY-MM-DD HH24:MI') AS rejected_at");
-        // MySQL MariaDB
-        // $this->db->select("DATE_FORMAT(req.rejected_at, '%Y-%m-%d %H:%i') AS rejected_at");
+        if ($this->dbDriver === 'postgre') {
+            $this->db->select("TO_CHAR(req.rejected_at, 'YYYY-MM-DD HH24:MI') AS rejected_at");
+        } elseif ($this->dbDriver === 'mysql') {
+            $this->db->select("DATE_FORMAT(req.rejected_at, '%Y-%m-%d %H:%i') AS rejected_at");
+        }
 
         $this->db->from("{$this->table} req");
 
@@ -313,54 +320,58 @@ class M_Influencer_request extends CI_model
             ),
             null
         ) AS created_by_name");
-        // PostgreSQL
-        $this->db->select("(
-            SELECT JSON_AGG(
-                JSON_BUILD_OBJECT(
-                    'id', map.id,
-                    'area_id', map.area_id,
-                    'influencer_id', map.influencer_id,
-                    'area', area.name
-                ) ORDER BY map.id
+
+        if ($this->dbDriver === 'postgre') {
+            $this->db->select("(
+                SELECT JSON_AGG(
+                    JSON_BUILD_OBJECT(
+                        'id', map.id,
+                        'area_id', map.area_id,
+                        'influencer_id', map.influencer_id,
+                        'area', area.name
+                    ) ORDER BY map.id
+                )
+                FROM {$this->mapping} map
+                JOIN {$this->areas} area ON area.id = map.area_id
+                WHERE map.influencer_id = req.influencer_id
+            ) AS areas");
+            $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
+        } elseif ($this->dbDriver === 'mysql') {
+            // MySQL
+            // $this->db->select("(
+            //     SELECT JSON_ARRAYAGG(
+            //     JSON_OBJECT(
+            //         'id', map.id,
+            //         'area_id', map.area_id,
+            //         'influencer_id', map.influencer_id,
+            //         'area', area.name
+            //     )
+            //     )
+            //     FROM {$this->mapping} map
+            //     JOIN {$this->areas} area ON area.id = map.area_id
+            //     WHERE map.influencer_id = req.influencer_id
+            //     ORDER BY map.id
+            // ) AS areas");
+            // MySQL MariaDB
+            $this->db->select("(
+                SELECT CONCAT('[', GROUP_CONCAT(
+                    CONCAT(
+                        '{',
+                        '\"id\":', map.id, ',',
+                        '\"area_id\":', map.area_id, ',',
+                        '\"influencer_id\":', map.influencer_id, ',',
+                        '\"area\":\"', area.name, '\"',
+                        '}'
+                    )
+                ), ']')
+                FROM {$this->mapping} map
+                JOIN {$this->areas} area ON area.id = map.area_id
+                WHERE map.influencer_id = req.influencer_id
             )
-            FROM {$this->mapping} map
-            JOIN {$this->areas} area ON area.id = map.area_id
-            WHERE map.influencer_id = req.influencer_id
-        ) AS areas");
-        $this->db->select("TO_CHAR(req.created_at, 'YYYY-MM-DD HH24:MI') AS created_at");
-        // MySQL
-        // $this->db->select("(
-        //     SELECT JSON_ARRAYAGG(
-        //     JSON_OBJECT(
-        //         'id', map.id,
-        //         'area_id', map.area_id,
-        //         'influencer_id', map.influencer_id,
-        //         'area', area.name
-        //     )
-        //     )
-        //     FROM {$this->mapping} map
-        //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = req.influencer_id
-        //     ORDER BY map.id
-        // ) AS areas");
-        // MySQL MariaDB
-        // $this->db->select("(
-        //     SELECT CONCAT('[', GROUP_CONCAT(
-        //         CONCAT(
-        //             '{',
-        //             '\"id\":', map.id, ',',
-        //             '\"area_id\":', map.area_id, ',',
-        //             '\"influencer_id\":', map.influencer_id, ',',
-        //             '\"area\":\"', area.name, '\"',
-        //             '}'
-        //         )
-        //     ), ']')
-        //     FROM {$this->mapping} map
-        //     JOIN {$this->areas} area ON area.id = map.area_id
-        //     WHERE map.influencer_id = req.influencer_id
-        // )
-        // AS areas");
-        // $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
+            AS areas");
+            $this->db->select("DATE_FORMAT(req.created_at, '%Y-%m-%d %H:%i') AS created_at");
+        }
+
         $this->db->from("{$this->table} req");
 
         if (!empty($search)) {
