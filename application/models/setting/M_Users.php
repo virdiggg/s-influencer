@@ -103,6 +103,7 @@ Class M_Users extends CI_model {
             return [
                 'status' => false,
                 'message' => $th->getMessage(),
+                'data' => null,
             ];
         }
 
