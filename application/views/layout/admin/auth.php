@@ -56,7 +56,7 @@
                         <div class="input-group input-group-sm mb-3">
                             <div class="icheck-primary mr-1">
                                 <input type="checkbox" class="view-password" id="view-password" />
-                                <label for="view-password">Lihat Password</label>
+                                <label for="view-password">Show Password</label>
                             </div>
                         </div>
                         <div class="row">
